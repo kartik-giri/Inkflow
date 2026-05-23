@@ -1,0 +1,10 @@
+{
+    "name": "@repo/zodPackage",
+    "main": "zod.ts",
+    "exports":{
+        ".": "./zod.ts"
+    },
+    "dependencies": {
+        "zod": "^4.4.3"
+    }
+}

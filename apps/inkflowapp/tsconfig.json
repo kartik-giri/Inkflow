@@ -1,6 +1,11 @@
 {
   "extends": "@repo/typescript-config/commonTsconfig.json",
     "compilerOptions": {
+    "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    },
     "plugins": [
       {
         "name": "next"
