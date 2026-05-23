@@ -1,6 +1,9 @@
+import { prisma } from "@repo/db"
+
 const Home = ()=>{
   return <div>
-    Hi
+    {
+    }
   </div>
 }
 

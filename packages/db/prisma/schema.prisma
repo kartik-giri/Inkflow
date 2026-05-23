@@ -12,6 +12,35 @@ datasource db {
   provider = "postgresql"
 }
 
-model Users {
+model User {
   id Int @default(autoincrement()) @id
+  username String @unique
+  password String @unique
+  email String @unique
+  rooms Room[]
+  elements Element[]
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+}
+
+model Room {
+  id Int @default (autoincrement()) @id
+  slug String @unique
+  adminId Int 
+  admin  User @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  elements Element[]
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+}
+
+model Element {
+  id Int @default(autoincrement()) @id
+  shape Json //example { "type": "rect", "x": 100, "y": 200, "width": 150, "height": 80 }
+
+  creator_id Int
+  creator User @relation(fields: [creator_id], references: [id])
+
+  room_id Int
+  room Room @relation(fields: [room_id], references: [id], onDelete: Cascade)
+
 }
