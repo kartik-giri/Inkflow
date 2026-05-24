@@ -13,11 +13,10 @@ export const SignupForm = ()=>{
   return (
         <Card>
         <form action={signupAction} className="flex flex-col gap-2">
-        
  
         <div className=" text-sm min-h-4 max-h-4 ">
           {state?.error && (<p className="text-red-500">{state.error}</p>)}
-          {state?.success && (<p className="text-green-500">{state.success}</p>)}
+          {/* {state?.success && (<p className="text-green-500">{state.success}</p>)} */}
         </div>
 
         <div className=" flex flex-col gap-1.5 ">
@@ -32,11 +31,11 @@ export const SignupForm = ()=>{
 
         <div className=" flex flex-col gap-1.5 ">
           <Label>Password</Label>
-          <Input name="password" placeholder="Min, 8 Characters" />
+          <Input type="password" name="password" placeholder="Min, 8 Characters" />
         </div>
 
         <div>
-        <Button type="submit" disable={isPending} className="w-full rounded-md cursor-pointer" icon={<ArrowRight/>}>{isPending? "Creating account...":"Sign up"}</Button>
+        <Button type="submit" disabled={isPending} className="w-full rounded-md cursor-pointer" icon={<ArrowRight/>}>{isPending? "Creating account...":"Sign up"}</Button>
       </div>
       
       </form>

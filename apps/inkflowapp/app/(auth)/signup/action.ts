@@ -2,6 +2,7 @@
 import { prisma } from "@repo/db";
 import bcrypt from "bcrypt"
 import { signUpScheema } from "@repo/zodPackage"
+import { redirect } from "next/navigation";
 
 export const signUpAction = async (prevState:any,formData: FormData) => {
     const raw = {
@@ -31,13 +32,15 @@ export const signUpAction = async (prevState:any,formData: FormData) => {
                 password: hashedPassword
             }
         })
-        return {
-            success: "Account created successfully"
-        }
+        // return {
+        //     success: "Account created successfully"
+        // }
     } catch (e) {
         console.log("Error ocured while signup", e)
         return {
             error: `User already exists with same user name or email!`
         }
     }
+        //Here we rediecting to given page if success.
+        redirect("/signin")
 }

@@ -1,9 +1,10 @@
-import { prisma } from "@repo/db"
+import { getServerSession } from "next-auth"
 
-const Home = ()=>{
+const Home = async()=>{
+  const session = await getServerSession();
   return <div>
-    {
-    }
+    InkFlow app
+    {JSON.stringify(session)}
   </div>
 }
 

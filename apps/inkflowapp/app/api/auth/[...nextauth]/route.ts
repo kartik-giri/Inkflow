@@ -1,6 +1,7 @@
 import { prisma } from "@repo/db";
 import NextAuth from "next-auth";
 import CredentialsProvider  from "next-auth/providers/credentials";
+import bcrypt from "bcrypt"
 
 const handler = NextAuth({
     providers: [
@@ -20,6 +21,11 @@ const handler = NextAuth({
                 })
 
                 if(!user){
+                    return null
+                }
+
+                const checkPassword = await bcrypt.compare(credentials!.password, user.password)
+                if(!checkPassword){
                     return null
                 }
 
@@ -43,6 +49,7 @@ const handler = NextAuth({
     pages:{
         signIn:"/signin"
     },
+
     //Where should the user be sent after login.
     callbacks:{
     async redirect({ url, baseUrl }) {
@@ -54,4 +61,15 @@ const handler = NextAuth({
 
 })
 
+/*
+Case 1 — relative URL
+tsurl = "/dashboard"
+url.startsWith("/") → true
+return `${baseUrl}${url}` → "http://localhost:3000/dashboard" ✅
+Case 2 — same origin absolute URL
+tsurl = "http://localhost:3000/canvas"
+url.startsWith("/") → false
+new URL(url).origin === baseUrl → "http://localhost:3000" === "http://localhost:3000" → true
+return url → "http://localhost:3000/canvas" ✅
+*/
 export { handler as POST, handler as GET }
