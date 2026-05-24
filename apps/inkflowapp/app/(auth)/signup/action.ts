@@ -1,10 +1,11 @@
+"use server"
 import { prisma } from "@repo/db";
 import bcrypt from "bcrypt"
 import { signUpScheema } from "@repo/zodPackage"
 
-export const signUpAction = async (formData: FormData) => {
+export const signUpAction = async (prevState:any,formData: FormData) => {
     const raw = {
-        userName: formData.get("username") as string,
+        username: formData.get("username") as string,
         email: formData.get("email") as string,
         password: formData.get("password") as string
     }
@@ -12,11 +13,11 @@ export const signUpAction = async (formData: FormData) => {
     const result = signUpScheema.safeParse(raw);
 
     if (!result.success){
-        // return{
-        //     error: result.error
-        // }
+        return{
+            error: result.error.issues[0].message
+        }
     }
-    const {userName, email, password} = result.data
+    const {username, email, password} = result.data
     if (!password) {
         return
     }
@@ -25,14 +26,18 @@ export const signUpAction = async (formData: FormData) => {
     try {
         await prisma.user.create({
             data: {
-                username: userName,
+                username: username,
                 email: email,
                 password: hashedPassword
             }
         })
+        return {
+            success: "Account created successfully"
+        }
     } catch (e) {
-        // return {
-        //     error: `${e} error occured while sign up!`
-        // }
+        console.log("Error ocured while signup", e)
+        return {
+            error: `User already exists with same user name or email!`
+        }
     }
 }

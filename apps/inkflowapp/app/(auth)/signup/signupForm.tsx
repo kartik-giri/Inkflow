@@ -5,10 +5,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {ArrowRight} from "lucide-react"
 import { signUpAction } from "./action";
+import { useActionState } from "react";
+
 export const SignupForm = ()=>{
-    return (
+  const [state,signupAction, isPending] = useActionState(signUpAction,undefined)
+    
+  return (
         <Card>
-        <form action=""  className="flex flex-col gap-2">
+        <form action={signupAction} className="flex flex-col gap-2">
+        
+        {state?.error && (
+          <p className=" text-red-500 text-sm">{state.error}</p>
+        )}
+        {state?.success &&(
+          <p className="text-green-500 text-sm">{state.success}</p>
+        )}
+
         <div className=" flex flex-col gap-1.5 ">
           <Label>Full name</Label>
           <Input name="username" placeholder="Kartik giri" />
@@ -25,8 +37,9 @@ export const SignupForm = ()=>{
         </div>
 
         <div>
-        <Button  className="w-full rounded-md cursor-pointer" icon={<ArrowRight/>}>Sign up</Button>
+        <Button type="submit" disable={isPending} className="w-full rounded-md cursor-pointer" icon={<ArrowRight/>}>{isPending? "Creating account...":"Sign up"}</Button>
       </div>
+      
       </form>
       </Card> 
     )
