@@ -47,3 +47,5 @@ The user inputs are transported like always using POST request to the server act
 packages/db/.env        ← for prisma migrate, prisma studio
 apps/inkflowapp/.env    ← for Next.js runtime (server actions, API routes)
 This is a monorepo pain point — just keep both in sync with the same DATABASE_URL.
+
+9. ?? returns right side if left is null or undefined but not in the case of 0 or ""

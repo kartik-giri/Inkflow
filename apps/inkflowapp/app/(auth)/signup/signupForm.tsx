@@ -14,12 +14,11 @@ export const SignupForm = ()=>{
         <Card>
         <form action={signupAction} className="flex flex-col gap-2">
         
-        {state?.error && (
-          <p className=" text-red-500 text-sm">{state.error}</p>
-        )}
-        {state?.success &&(
-          <p className="text-green-500 text-sm">{state.success}</p>
-        )}
+ 
+        <div className=" text-sm min-h-4 max-h-4 ">
+          {state?.error && (<p className="text-red-500">{state.error}</p>)}
+          {state?.success && (<p className="text-green-500">{state.success}</p>)}
+        </div>
 
         <div className=" flex flex-col gap-1.5 ">
           <Label>Full name</Label>
