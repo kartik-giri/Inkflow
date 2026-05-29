@@ -151,7 +151,7 @@ ws.on("connection", async (socket, request)=>{
         }
     })
 
-    socket.on("close" , ()=>{
+    socket.on("close" ,()=>{
         users.forEach((room, roomId)=>{
             room.delete(currentUser); //deleting user from every room
 
