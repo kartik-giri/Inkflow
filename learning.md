@@ -2,7 +2,7 @@
 2. bun add clsx tailwind-merge in app
 3. clsx handles conditional classes, tailwind-merge resolves conflicts like rounded-xl vs rounded-sm.
 
-4. Server action is TypeScript Remote Procedure Call.
+4. Server  action is TypeScript Remote Procedure Call.
 5. it is the funciton which is run on server. usually used for manipulating DB directly. 
 6. Also no need to create separate route to send DB req using SA.
 7. cause in next both backend and front is hosted on same server that's why we can send Db request direstly from DB and that same DB backend can also access
