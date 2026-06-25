@@ -22,7 +22,7 @@ Mind Map for server action and form.
 1. Server action take sthe input from Form and runs it on server and returns some data.
 2. But how can we get and render the data returned by Server Action.
 3. For that we use useActionState() hook which allow us to update the state with side effects using server action.
-4. warapped server action returns some data get sotred in state which allow us to access returned data.
+4. warapped server action returns some data get stored in state which allow us to access returned data.
 
 1. Page loads → JS hydrates SignupForm in browser
 
@@ -33,7 +33,7 @@ Mind Map for server action and form.
    → browser serializes all input[name] into FormData
    → sends POST request to /_next/action/abc123
 
-4. Next.js server receives the request
+4. Next.js  server receives the request
    → calls your signUpAction(prevState, formData)
    → runs on server (DB access, bcrypt, etc.)
 
