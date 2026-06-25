@@ -49,3 +49,10 @@ apps/inkflowapp/.env    ← for Next.js runtime (server actions, API routes)
 This is a monorepo pain point — just keep both in sync with the same DATABASE_URL.
 
 9. ?? returns right side if left is null or undefined but not in the case of 0 or ""
+
+## tubro.json
+ "build": {
+      "dependsOn": ["^build"], -> ^ this means first build dependencies before building packages or apps
+      "inputs": ["$TURBO_DEFAULT$", ".env*"], -> Check source code etc and env variables to see if cache is valid. if source code or env is                                          changed build task will excute again.
+      "outputs": [".next/**", "!.next/cache/**"] -> folder where caches is stored ! -> ignores folder, add dist folder if we want to convert typescript code in javascript and cache it.
+    }
