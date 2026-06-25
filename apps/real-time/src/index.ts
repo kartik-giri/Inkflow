@@ -12,7 +12,7 @@ const jwtSecret = process.env.NEXTAUTH_SECRET;
 
 const verifyJWT = async(token:string)=>{
     try{
-        const verifyToken = await decode({
+        const verifyToken = await decode({ //NextAuth's decode() does both: decrypt + verify
             token,
             secret: jwtSecret!
         });
@@ -89,7 +89,10 @@ ws.on("connection", async (socket, request)=>{
 
             socket.send(JSON.stringify({
                 type:"Joined-room",
-                roomId : roomId
+                roomId : roomId,
+                payload:{
+                    message:`Thanks for joining room ${roomId} `
+                }
             }))
         }
 
@@ -100,19 +103,22 @@ ws.on("connection", async (socket, request)=>{
         }
         */
         if(parsedMsg.type === "leave-room"){
-            const roomId = parsedMsg.roomId
-            const room = users.get(roomId);
-            if(!room){
+            const roomId = parsedMsg.roomId;
+            const userList = users.get(roomId);
+            if(!userList){
                 return
             }
-            room?.delete(currentUser)
-            if(room.size <=0){
+            userList?.delete(currentUser)
+            if(userList.size <=0){
                 users.delete(roomId)
             }
 
             socket.send(JSON.stringify({
                 type:"Left-room",
-                roomId: roomId
+                roomId: roomId,
+                payload:{
+                    message:`User is deleted from this room ${roomId}`
+                }
             }))
         }
 
@@ -125,12 +131,20 @@ ws.on("connection", async (socket, request)=>{
         */
         if(parsedMsg.type === "draw"){
             const roomId = parsedMsg.roomId;
+                      if(!users.get(roomId).has(currentUser)){
+                return
+            }
             const shapeData = parsedMsg.message;
 
-            const room = users.get(roomId);
-            if(!room){
+            const userList = users.get(roomId);
+            if(!userList){
                 return 
             }
+ 
+            //Todo
+            //1. add redis queue
+            //2. push data to queue
+            //3. from queue worker picks the data and pushed it to db. to reduce workload of our server
 
             //Storing shapes in to db
             await prisma.element.create({
@@ -140,22 +154,22 @@ ws.on("connection", async (socket, request)=>{
                     room_id: roomId
                 }
             })
-
-            room.forEach((user)=>{
+            //Bradcasting shape to every socket connected to same room
+            userList.forEach((user)=>{
                 user.socket.send(JSON.stringify({
                     type: "draw",
-                    message: shapeData,
+                    message: JSON.stringify(shapeData),
                     roomId: roomId
                 }))
             })
         }
     })
-
+    //When tihs event occurs call this callback
     socket.on("close" ,()=>{
-        users.forEach((room, roomId)=>{
-            room.delete(currentUser); //deleting user from every room
+        users.forEach((userList, roomId)=>{ //value, keys
+            userList.delete(currentUser); //deleting user from every room
 
-            if(room.size <= 0){
+            if(userList.size <= 0){
                 users.delete(roomId); //if roomID maps have no value delete it
             }
         })
