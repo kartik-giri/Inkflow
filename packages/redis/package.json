@@ -1,0 +1,10 @@
+{
+    "name": "@repo/redis",
+    "version": "0.0.0",
+    "dependencies": {
+        "redis": "^6.0.1"
+    },
+    "exports":{
+        ".": "./src/index.ts"
+    }
+}

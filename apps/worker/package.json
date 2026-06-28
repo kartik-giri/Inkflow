@@ -1,0 +1,16 @@
+{
+  "name": "worker",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@repo/db": "*",
+    "@repo/redis": "*"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
