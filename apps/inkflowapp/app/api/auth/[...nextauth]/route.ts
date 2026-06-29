@@ -1,46 +1,35 @@
-import { prisma } from "@repo/db";
-import NextAuth from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
+import { prisma } from "@repo/db"
+import NextAuth, { NextAuthOptions } from "next-auth"
+import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcrypt"
 
-const handler = NextAuth({
+// ✅ Extract and export authOptions separately
+export const authOptions: NextAuthOptions = {
     providers: [
         CredentialsProvider({
-
             name: "Credentials",
             credentials: {
-                email: { label: "email", type: "text", placeholder: "kartik giri" },
+                email: { label: "email", type: "text" },
                 password: { label: "password", type: "password" }
             },
-            async authorize(credentials, req) {
-
+            async authorize(credentials) {
                 const user = await prisma.user.findUnique({
-                    where: {
-                        email: credentials?.email
-                    }
+                    where: { email: credentials?.email }
                 })
 
-                if (!user) {
-                    return null
-                }
+                if (!user) return null
 
-                const checkPassword = await bcrypt.compare(credentials!.password, user.password)
-                if (!checkPassword) {
-                    return null
-                }
+                const checkPassword = await bcrypt.compare(
+                    credentials!.password,
+                    user.password
+                )
 
-                if (user) {
-                    // Any object returned will be saved in `user` property of the JWT
-                    return {
-                        id: user.id.toString(),
-                        name: user.username,
-                        email: user.email
-                    }
-                } else {
-                    // If you return null then an error will be displayed advising the user to check their details.
-                    return null
+                if (!checkPassword) return null
 
-                    // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
+                return {
+                    id: user.id.toString(),
+                    name: user.username,
+                    email: user.email
                 }
             }
         })
@@ -49,26 +38,32 @@ const handler = NextAuth({
     pages: {
         signIn: "/signin"
     },
-
     callbacks: {
         async jwt({ token, user }) {
-            // Runs during login
             if (user) {
                 token.id = user.id
             }
             return token
-  
         },
-
-        //Where should the user be sent after login.
+        async session({ session, token }) {
+            session.user.id = token.id as string
+            return session
+        },
         async redirect({ url, baseUrl }) {
-            if (url.startsWith("/")) return `${baseUrl}${url}`;
-            if (new URL(url).origin === baseUrl) return url;
-            return baseUrl;
+            if (url.startsWith("/")) return `${baseUrl}${url}`
+            if (new URL(url).origin === baseUrl) return url
+            return baseUrl
         }
     }
+}
 
-})
+// ✅ Pass authOptions to NextAuth
+const handler = NextAuth(authOptions)
+export { handler as GET, handler as POST }
+
+
+
+
 
 /*
 Case 1 — relative URL
@@ -82,4 +77,3 @@ url.startsWith("/") → false
 new URL(url).origin === baseUrl → "http://localhost:3000" === "http://localhost:3000" → true
 return url → "http://localhost:3000/canvas" ✅
 */
-export { handler as POST, handler as GET }

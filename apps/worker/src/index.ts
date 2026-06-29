@@ -14,15 +14,16 @@ const main = async ()=>{
         }
 
         const parsedJob = JSON.parse(job.element)
+       console.log("Worker is exucating the job")
         await prisma.element.create({
             data:{
-                shape: JSON.stringify(parsedJob.shape),
+                shape: parsedJob.shape, //JSON.stringify covnverts json in to string
                 creator_id: parsedJob.creatorId,
                 room_id: parsedJob.roomId
             }
         })
     }catch(err){
-        console.log(`Error occured in worker ${err}`)
+        console.error(err)
     }
     }
 }

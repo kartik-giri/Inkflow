@@ -34,6 +34,7 @@ type User = {
 //One user can be part of multiple rooms. but can't have duplicate entries.
 const users = new Map<number, Set<User>>();
 
+
 const main = async () => {
     const redisClient = await getRedisClient();
 
@@ -140,20 +141,6 @@ const main = async () => {
                 if (!userList || !userList?.has(currentUser)) {
                     return
                 }
-
-                //Todo
-                //1. add redis queue
-                //2. push data to queue
-                //3. from queue worker picks the data and pushed it to db. to reduce workload of our server
-
-                // //Storing shapes in to db
-                // await prisma.element.create({
-                //     data: {
-                //         shape: JSON.stringify(shapeData),
-                //         creator_id: currentUser.userId,
-                //         room_id: roomId
-                //     }
-                // })
 
                 try {
                     //Bradcasting shape to every socket connected to same room

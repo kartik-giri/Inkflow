@@ -56,3 +56,97 @@ This is a monorepo pain point — just keep both in sync with the same DATABASE_
       "inputs": ["$TURBO_DEFAULT$", ".env*"], -> Check source code etc and env variables to see if cache is valid. if source code or env is                                          changed build task will excute again.
       "outputs": [".next/**", "!.next/cache/**"] -> folder where caches is stored ! -> ignores folder, add dist folder if we want to convert typescript code in javascript and cache it.
     }
+
+
+## NEXT AUTH authOptions
+Good question. Let me explain exactly what changed and why it works now.
+
+---
+
+**Before — inline, not exported:**
+
+```typescript
+// ❌ authOptions was anonymous — trapped inside NextAuth()
+const handler = NextAuth({
+    providers: [...],
+    callbacks: {
+        async session({ session, token }) {
+            session.user.id = token.id  // this callback existed
+            return session              // but nobody outside could use this config
+        }
+    }
+})
+
+export { handler as GET, handler as POST }
+// Only the handler was exported — the config object was lost
+```
+
+When you called:
+```typescript
+const session = await getServerSession()  // no config passed
+```
+
+NextAuth had no idea about your callbacks. It used its **default session shape** — only `name`, `email`, `image`. Your `id` callback never ran. So `session.user.id` = `undefined`.
+
+---
+
+**After — extracted and exported:**
+
+```typescript
+// ✅ authOptions is now a named, exported variable
+export const authOptions: NextAuthOptions = {
+    callbacks: {
+        async session({ session, token }) {
+            session.user.id = token.id  // ← this now runs
+            return session
+        }
+    }
+}
+
+const handler = NextAuth(authOptions)
+```
+
+Now when you call:
+```typescript
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+
+const session = await getServerSession(authOptions)  // ← config passed
+```
+
+The full picture of what happens:
+
+```
+getServerSession(authOptions)
+        ↓
+NextAuth reads your callbacks
+        ↓
+jwt callback runs:
+  token.id = user.id  ✅
+        ↓
+session callback runs:
+  session.user.id = token.id  ✅
+        ↓
+session returned with id populated
+        ↓
+session.user.id = "7"  ✅
+```
+
+---
+
+**The key insight:**
+
+`getServerSession()` and `NextAuth()` are two separate function calls that both need the same config:
+
+```
+NextAuth(authOptions)
+  → handles /api/auth/* routes
+  → login, logout, session creation
+  → uses authOptions to know HOW to create sessions
+
+getServerSession(authOptions)
+  → reads the current session anywhere on the server
+  → needs authOptions to know HOW to decode the session
+  → without it, only returns default shape (no id)
+```
+
+They're like two people who need to read the same manual to communicate correctly. Before, only `NextAuth` had the manual. Now both have it.
