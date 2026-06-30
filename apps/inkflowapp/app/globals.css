@@ -2,6 +2,7 @@
 
 @theme inline {
   --font-inter: var(--font-inter);
+  --font-coming-soon: var(--font-coming-soon)
 }
 
 @layer base {
