@@ -1,11 +1,16 @@
+// import Footer from "@/components/ui/Landing/footer"
 import { Navbar } from "@/components/ui/Landing/navbar"
+import { cn } from "@/lib/utils"
 import { ReactNode } from "react"
 
 const LandingLayout = ({children}: Readonly<{children: ReactNode}>)=>{
     return (
         <section>
             <Navbar/>
-            {children}
+            <main className={cn(`pt-16`)}>
+                {children}
+            </main>
+            {/* <Footer/> */}
         </section>
     )
 }

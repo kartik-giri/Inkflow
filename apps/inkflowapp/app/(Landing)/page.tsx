@@ -1,7 +1,11 @@
+import Demo from "@/components/ui/Landing/demo"
+import HeroSection from "@/components/ui/Landing/heroSection"
+
 const Landing = ()=>{
     return (
         <section>
-            hi
+            <HeroSection/>
+            <Demo/>
         </section>
     )
 }
