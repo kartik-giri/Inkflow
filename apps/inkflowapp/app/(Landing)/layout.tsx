@@ -1,5 +1,5 @@
-// import Footer from "@/components/ui/Landing/footer"
-import { Navbar } from "@/components/ui/Landing/navbar"
+import Footer from "@/components/Landing/footer"
+import { Navbar } from "@/components/Landing/navbar"
 import { cn } from "@/lib/utils"
 import { ReactNode } from "react"
 
@@ -10,7 +10,7 @@ const LandingLayout = ({children}: Readonly<{children: ReactNode}>)=>{
             <main className={cn(`pt-16`)}>
                 {children}
             </main>
-            {/* <Footer/> */}
+            <Footer/>
         </section>
     )
 }

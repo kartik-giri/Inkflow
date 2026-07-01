@@ -3,8 +3,8 @@ import React, { useState, useEffect } from "react";
 import { PenLine } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-import { Logo } from "../logo";
-import { Button } from "../button";
+import { Logo } from "../ui/logo";
+import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 
 export const Navbar = () => {
@@ -35,10 +35,9 @@ export const Navbar = () => {
         {/* Nav links */}
         <div className={cn("hidden sm:flex items-center gap-8")}>
           {[
-            { label: "Features", href: "#features" },
-            { label: "Plus", href: "#plus" },
-            // { label: "Community", href: "#community" },
-            { label: "Blog", href: "#blog" },
+            { label: "Demo Video", href: "#Demo Video" },
+            { label: "Features", href: "#Features" },
+            { label: "Connect", href: "#Connect" },
           ].map(({ label, href }) => (
             <a
               key={label}
@@ -86,10 +85,9 @@ export const Navbar = () => {
       {mobileOpen && (
         <div className={cn("sm:hidden border-t-2 border-[#1e1e1e] bg-white px-4 pb-6 flex flex-col gap-1")}>
           {[
-            { label: "Features", href: "#features" },
-            { label: "Plus", href: "#plus" },
-            // { label: "Community", href: "#community" },
-            { label: "Blog", href: "#blog" },
+            { label: "Demo Video", href: "#Demo Video" },
+            { label: "Features", href: "#Features" },
+            { label: "Connect", href: "#Connect" },
           ].map(({ label, href }) => (
             <a
               key={label}

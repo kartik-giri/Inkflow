@@ -1,11 +1,13 @@
-import Demo from "@/components/ui/Landing/demo"
-import HeroSection from "@/components/ui/Landing/heroSection"
+import Demo from "@/components/Landing/demo"
+import Features from "@/components/Landing/features"
+import HeroSection from "@/components/Landing/heroSection"
 
 const Landing = ()=>{
     return (
         <section>
             <HeroSection/>
             <Demo/>
+            <Features/>
         </section>
     )
 }

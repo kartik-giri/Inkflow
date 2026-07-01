@@ -1,6 +1,6 @@
 "use client"
 import { cn } from "@/lib/utils";
-import { Button } from "../button";
+import { Button } from "../ui/button";
 import { GithubIcon } from "@/components/icons/github";
 import { redirect } from "next/navigation";
 // import Router from "next/navigation";
