@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { GithubIcon } from "@/components/icons/github";
 import { redirect } from "next/navigation";
+import Heading from "../ui/heading";
 // import Router from "next/navigation";
 
 const HeroSection = ()=>{
@@ -13,9 +14,9 @@ const HeroSection = ()=>{
         <div className={cn(`flex flex-col justify-center items-center bg-[radial-gradient(ellipse_at_center,#E3533620_0%,#ffffff_70%)] `)}>
             <h1 className={cn(`font-coming-soon text-5xl font-bold md:text-8xl`)}>
                 <div>Draw ideas </div>
-               <div>ship faster.</div>
+               <Heading classname={`text-5xl font-bold md:text-8xl`}>ship faster.</Heading>
             </h1>
-            <div className={cn(`w-6/12  text-center mt-6 font-semibold text-gray-500 md:text-xl`)}>
+            <div className={cn(`w-6/12  text-center mt-12 font-semibold text-gray-500 md:text-xl`)}>
                 <p>
                   The hand-drawn whiteboard built for Devs. Sketch, collaborate, and present all in one place.  
                 </p>
