@@ -2,6 +2,7 @@ import { prisma } from "@repo/db";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { revalidatePath } from "next/cache";
 
 export const POST = async (req: NextRequest) => {
      //getServerSession takes authOptions for running callbacks.
@@ -16,13 +17,22 @@ export const POST = async (req: NextRequest) => {
 
      try {
           const body = await req.json(); //parsing the req data.
-
+          
+          if (!body.slug || typeof body.slug !== "string") {
+               return NextResponse.json(
+                    { error: "Slug is required" },
+                    { status: 400 }
+               );
+          }
+          
           const room = await prisma.room.create({
                data: {
                     slug: body.slug,
                     adminId: Number(session.user.id)
                }
           })
+
+          revalidatePath("/dashboard")//telling dashboard page that your fetched data/cache data is stailed
           return NextResponse.json(
                { room },
                { status: 200 }

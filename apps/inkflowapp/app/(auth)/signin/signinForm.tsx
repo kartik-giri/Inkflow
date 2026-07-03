@@ -34,7 +34,7 @@ export const SigninForm = () => {
                 setError("Invalid email or passowrd");
                 return
             }
-            router.push("/")
+            router.push("/dashboard")
         } catch (e) {
             setError("Something wend t wrong while signing in");
         } finally {
