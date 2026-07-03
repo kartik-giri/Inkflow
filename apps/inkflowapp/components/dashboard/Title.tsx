@@ -12,7 +12,7 @@ const possessive = formattedName.endsWith("s")
   : `${formattedName}'s`;
   return possessive
 }
-const Title = ({name}:{name:string})=>{
+const Title = ({name, setOpen}:{name:string, setOpen:(state:boolean)=>void})=>{
     const formatedName = formatName(name);
     return (
         <section className={cn(`px-4 pt-10 lg:px-27 flex justify-between items-center`)}>
@@ -27,7 +27,9 @@ const Title = ({name}:{name:string})=>{
             </h1>
 
             <div>
-                <Button><Plus/>Create Canvas</Button>
+                <Button onclick={()=>{
+                    setOpen(true)
+                }}><Plus/>Create Canvas</Button>
             </div>
         </section>
     )

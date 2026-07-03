@@ -16,8 +16,8 @@ const Table = ({rooms}:{rooms:Room[]})=>{
             <thead>
                 <tr className="border-b">
                     <th className="text-left p-4">Name</th>
-                    <th className="text-left p-4">Created</th>
-                    <th className="text-left p-4">Last edited</th>
+                    <th className="text-left p-4 hidden md:table-cell">Created</th>
+                    <th className="text-left p-4 hidden md:table-cell" >Last edited</th>
                     <th className="text-left p-4"></th>
                     <th className="text-left p-4"></th>
                 </tr>
@@ -33,11 +33,11 @@ const Table = ({rooms}:{rooms:Room[]})=>{
                             {room.slug}
                         </td>
 
-                        <td className="p-4">
+                        <td className="p-4 hidden md:table-cell">
                             {room.created_at.toLocaleDateString("en-IN")}
                         </td>
 
-                        <td className="p-4">
+                        <td className="p-4 hidden md:table-cell">
                             {room.updated_at.toLocaleDateString("en-IN")}
                         </td>
 
@@ -46,7 +46,7 @@ const Table = ({rooms}:{rooms:Room[]})=>{
                                 href={`/canvas/${room.slug}`}
                                 className="text-blue-600"
                             >
-                                <Button>Open</Button>
+                                <Button className="text-sm font-semibold">Open</Button>
                             </Link>
                         </td>
                         <td>
@@ -58,7 +58,7 @@ const Table = ({rooms}:{rooms:Room[]})=>{
                             }}>
                                 {isloading? "Deleting...": "Delete"}
                             </button> */}
-                            <Button className="bg-white text-red-700" disabled={deletingId === room.id} onclick={async()=>{
+                            <Button className="bg-white text-red-700 text-sm font-semibold" disabled={deletingId === room.id} onclick={async()=>{
                                 setDeletingId(room.id)
                                 await deleteRoom(Number(room.id))
                                 router.refresh()

@@ -11,7 +11,7 @@ const DashNavBar = ({ email, name }: { email: string; name: string }) => {
   return (
     <nav className={cn(`flex justify-between p-4 lg:px-27 border-b-2 border-black sticky top-0 bg-white z-50`)}>
       <div>
-        <Logo />
+        <Logo disable={true} className="cursor-auto" />
       </div>
 
       <div className={cn(`flex gap-3`)}>
