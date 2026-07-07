@@ -150,3 +150,7 @@ getServerSession(authOptions)
 ```
 
 They're like two people who need to read the same manual to communicate correctly. Before, only `NextAuth` had the manual. Now both have it.
+
+## tailwind
+fixed → Take the element out of the normal document flow and position it relative to the viewport.
+inset-0 → Make it fill the entire viewport.
