@@ -154,3 +154,6 @@ They're like two people who need to read the same manual to communicate correctl
 ## tailwind
 fixed → Take the element out of the normal document flow and position it relative to the viewport.
 inset-0 → Make it fill the entire viewport.
+
+## Enums
+1. It is the special datatype that allow us to represent define set of named constants.
