@@ -1,7 +1,7 @@
 "use client";
 import useWindowSize from "@/hooks/useWindowSize";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IconButton } from "./IconButton";
 import {
   Circle,
@@ -13,31 +13,9 @@ import {
   Square,
 } from "lucide-react";
 import { Card } from "../ui/cardWrapper";
+import { Game } from "@/draw/Game";
+import { Shapes, StorkeColor, StorkeWidth } from "@/types/canvas";
 
-export enum Shapes {
-  circle,
-  rectangle,
-  pencil,
-  move,
-  eraser,
-  Hand,
-}
-
-export enum StorkeColor {
-  black,
-  orange,
-  indigo,
-  yellow,
-  green,
-  blue,
-}
-
-export enum StorkeWidth {
-  mini,
-  small,
-  large,
-  xLarge,
-}
 const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
   const { width, height } = useWindowSize();
   const [selectedShape, setSelectedShape] = useState<Shapes>(Shapes.pencil);
@@ -45,6 +23,32 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
     StorkeColor.black,
   );
   const [storkeWidth, setStorkeWidth] = useState<StorkeWidth>(StorkeWidth.mini);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [gameClass, setGameClass] = useState<Game|null>(null);
+
+  useEffect(()=>{
+    if(canvasRef.current){
+        const canvas = canvasRef.current;
+        
+        const gameObj = new Game(canvas,roomId,socket,selectedShape,storkeColor, storkeWidth);
+        if(!gameObj){
+            return
+        }
+        setGameClass(gameObj)
+        return ()=>{
+
+        }
+
+    }
+  },[height,width])
+
+  useEffect(()=>{
+    if(gameClass){
+        gameClass.setColor(storkeColor);
+        gameClass.setStorkeWidth(storkeWidth);
+        gameClass.setSelectedShape(selectedShape);
+    }
+  },[storkeColor, storkeWidth, selectedShape])
 
   return (
     <section className={cn(`relative`)}>
@@ -53,6 +57,7 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
           `bg-white  bg-[radial-gradient(#1e1e1e15_1px,transparent_2px)] [background-size:24px_24px]`,
         )}
         style={{ width: width, height: height }}
+        ref={canvasRef}
       ></canvas>
 
       {/* Shapes menu */}
@@ -165,7 +170,11 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
             }}
             activeStorke={storkeWidth === StorkeWidth.mini}
             icon={
-              <div className={cn("w-6 h-6 flex items-center justify-center border rounded-md overflow-hidden")}>
+              <div
+                className={cn(
+                  "w-6 h-6 flex items-center justify-center border rounded-md overflow-hidden",
+                )}
+              >
                 <Dot className={cn("scale-[1]")} />
               </div>
             }
@@ -177,7 +186,11 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
             }}
             activeStorke={storkeWidth === StorkeWidth.small}
             icon={
-              <div className={cn("w-6 h-6 flex items-center justify-center border rounded-md overflow-hidden")}>
+              <div
+                className={cn(
+                  "w-6 h-6 flex items-center justify-center border rounded-md overflow-hidden",
+                )}
+              >
                 <Dot className={cn("scale-[2]")} /> {/* mini */}
               </div>
             }
@@ -190,8 +203,12 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
             }}
             activeStorke={storkeWidth === StorkeWidth.large}
             icon={
-              <div className={cn("w-6 h-6 flex items-center justify-center border rounded-md overflow-hidden")}>
-                <Dot className={cn("scale-[3]")} /> 
+              <div
+                className={cn(
+                  "w-6 h-6 flex items-center justify-center border rounded-md overflow-hidden",
+                )}
+              >
+                <Dot className={cn("scale-[3]")} />
               </div>
             }
             className="my-1"
@@ -203,8 +220,12 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
             }}
             activeStorke={storkeWidth === StorkeWidth.xLarge}
             icon={
-              <div className={cn("w-6 h-6 flex items-center justify-center border rounded-md overflow-hidden")}>
-                <Dot className={cn("scale-[4]")} /> 
+              <div
+                className={cn(
+                  "w-6 h-6 flex items-center justify-center border rounded-md overflow-hidden",
+                )}
+              >
+                <Dot className={cn("scale-[4]")} />
               </div>
             }
             className="my-1"
