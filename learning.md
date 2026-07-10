@@ -185,3 +185,8 @@ Now TWO games have active events ❌
 cleanup already ran and had nothing to remove
 
 SOlution for this is boolean flag whcih will turn true if clean up is called and if boolean is true than event will not be registered. to prevent 2 callses with registrered events.
+
+## Crisp lines
+so the thing is that css got less pixels than retina screen and that's why out shapes look blurry because they are draw on css pixels.
+
+Using dpr we have increases css pixels and scaled the canvas to render shapes correctly.

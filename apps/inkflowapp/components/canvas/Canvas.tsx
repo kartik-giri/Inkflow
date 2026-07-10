@@ -4,10 +4,13 @@ import { cn } from "@/lib/utils";
 import { useEffect, useRef, useState } from "react";
 import { IconButton } from "./IconButton";
 import {
+  ArrowRight,
   Circle,
+  Diamond,
   Dot,
   Eraser,
   Hand,
+  Minus,
   Pencil,
   RectangleHorizontal,
   Square,
@@ -26,35 +29,52 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<Game | null>(null);
 
-  useEffect(()=>{
-    if(canvasRef.current){
-        const canvas = canvasRef.current;
-        
-        const gameObj = new Game(canvas,roomId,socket,selectedShape,storkeColor, storkeWidth);
-        if(!gameObj){
-            return
-        }
-        gameRef.current = gameObj
-        return ()=>{
-            gameObj.cleanUpvents()
-        }
+  useEffect(() => {
+    if (canvasRef.current) {
+      const canvas = canvasRef.current;
 
+      const gameObj = new Game(
+        canvas,
+        roomId,
+        socket,
+        selectedShape,
+        storkeColor,
+        storkeWidth,
+      );
+      if (!gameObj) {
+        return;
+      }
+      gameRef.current = gameObj;
+      return () => {
+        gameObj.cleanUpvents();
+      };
     }
-  },[])
+  }, []);
 
-  useEffect(()=>{
-    if(gameRef && canvasRef.current){
-        gameRef.current?.render()
-    }
-  },[height,width])
+  useEffect(() => {
+    if (gameRef && canvasRef.current) {
+      const dpr = window.devicePixelRatio || 1;
+      const canvas = canvasRef.current;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
 
-  useEffect(()=>{
-    if(gameRef){
-        gameRef.current?.setColor(storkeColor);
-        gameRef.current?.setStorkeWidth(storkeWidth);
-        gameRef.current?.setSelectedShape(selectedShape);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+
+      const ctx = canvas.getContext("2d")!;
+      ctx.scale(dpr, dpr);
+
+      gameRef.current?.render();
     }
-  },[storkeColor, storkeWidth, selectedShape])
+  }, [height, width]);
+
+  useEffect(() => {
+    if (gameRef) {
+      gameRef.current?.setColor(storkeColor);
+      gameRef.current?.setStorkeWidth(storkeWidth);
+      gameRef.current?.setSelectedShape(selectedShape);
+    }
+  }, [storkeColor, storkeWidth, selectedShape]);
 
   return (
     <section className={cn(`relative`)}>
@@ -70,7 +90,7 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
 
       {/* Shapes menu */}
       <div className={cn(`flex justify-center`)}>
-        <Card className=" absolute top-4 p-1 rounded-md w-fit flex gap-6">
+        <Card className=" absolute top-4 p-1 rounded-md w-fit flex flex-wrap gap-1 md:gap-4">
           <IconButton
             className="p-2"
             onClick={() => setSelectedShape(Shapes.pencil)}
@@ -94,6 +114,33 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
             }}
             activeShape={selectedShape === Shapes.rectangle}
             icon={<RectangleHorizontal />}
+          ></IconButton>
+
+          <IconButton
+            className="p-2"
+            onClick={() => {
+              setSelectedShape(Shapes.diamond);
+            }}
+            activeShape={selectedShape === Shapes.diamond}
+            icon={<Diamond />}
+          ></IconButton>
+
+          <IconButton
+            className="p-2"
+            onClick={() => {
+              setSelectedShape(Shapes.Line);
+            }}
+            activeShape={selectedShape === Shapes.Line}
+            icon={<Minus/>}
+          ></IconButton>
+
+          <IconButton
+            className="p-2"
+            onClick={() => {
+              setSelectedShape(Shapes.Arrow);
+            }}
+            activeShape={selectedShape === Shapes.Arrow}
+            icon={<ArrowRight/>}
           ></IconButton>
 
           <IconButton
