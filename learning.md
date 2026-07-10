@@ -157,3 +157,31 @@ inset-0 → Make it fill the entire viewport.
 
 ## Enums
 1. It is the special datatype that allow us to represent define set of named constants.
+
+## BUG
+React mounts component
+      ↓
+useEffect runs
+      ↓
+new Game() created → init() starts
+      ↓
+init hits "await getShapesAction()" → PAUSES
+      ↓
+React decides to re-render (width/height changed)
+      ↓
+cleanup function runs → gameObj.cleanEvents()
+      ↓
+BUT init hasn't finished yet!
+initEvents() hasn't been called yet!
+So cleanEvents() removes listeners that don't exist yet
+      ↓
+init resumes after await completes
+      ↓
+initEvents() FINALLY runs → registers events
+      ↓
+New Game() also created → registers its own events
+      ↓
+Now TWO games have active events ❌
+cleanup already ran and had nothing to remove
+
+SOlution for this is boolean flag whcih will turn true if clean up is called and if boolean is true than event will not be registered. to prevent 2 callses with registrered events.

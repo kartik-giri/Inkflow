@@ -24,7 +24,7 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
   );
   const [storkeWidth, setStorkeWidth] = useState<StorkeWidth>(StorkeWidth.mini);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [gameClass, setGameClass] = useState<Game|null>(null);
+  const gameRef = useRef<Game | null>(null);
 
   useEffect(()=>{
     if(canvasRef.current){
@@ -34,19 +34,25 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
         if(!gameObj){
             return
         }
-        setGameClass(gameObj)
+        gameRef.current = gameObj
         return ()=>{
-
+            gameObj.cleanUpvents()
         }
 
+    }
+  },[])
+
+  useEffect(()=>{
+    if(gameRef && canvasRef.current){
+        gameRef.current?.render()
     }
   },[height,width])
 
   useEffect(()=>{
-    if(gameClass){
-        gameClass.setColor(storkeColor);
-        gameClass.setStorkeWidth(storkeWidth);
-        gameClass.setSelectedShape(selectedShape);
+    if(gameRef){
+        gameRef.current?.setColor(storkeColor);
+        gameRef.current?.setStorkeWidth(storkeWidth);
+        gameRef.current?.setSelectedShape(selectedShape);
     }
   },[storkeColor, storkeWidth, selectedShape])
 
@@ -57,6 +63,8 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
           `bg-white  bg-[radial-gradient(#1e1e1e15_1px,transparent_2px)] [background-size:24px_24px]`,
         )}
         style={{ width: width, height: height }}
+        width={width}
+        height={height}
         ref={canvasRef}
       ></canvas>
 

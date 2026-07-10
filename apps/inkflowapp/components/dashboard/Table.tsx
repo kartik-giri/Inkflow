@@ -50,15 +50,7 @@ const Table = ({rooms}:{rooms:Room[]})=>{
                             </Link>
                         </td>
                         <td>
-                            {/* <button className="text-red-700 cursor-pointer" disabled={isloading} onClick={async()=>{
-                                setLoading(true)
-                                await deleteRoom(Number(room.id))
-                                router.refresh()
-                                setLoading(false)
-                            }}>
-                                {isloading? "Deleting...": "Delete"}
-                            </button> */}
-                            <Button className={`bg-white text-red-700 text-sm font-semibold ${deletingId === room.id &&"bg-red-700 text-white"}`} disabled={deletingId === room.id} onclick={async()=>{
+                            <Button  className={`bg-white text-red-700 text-sm font-semibold ${deletingId === room.id &&"bg-red-700 text-white"}`} disabled={deletingId === room.id} onclick={async()=>{
                                 setDeletingId(room.id)
                                 await deleteRoom(Number(room.id))
                                 router.refresh()

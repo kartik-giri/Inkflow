@@ -128,9 +128,9 @@ const main = async () => {
 
             /*
             {
-              type: "draw",
-              message: string,
-              roomId: number
+              "type": "draw",
+              "message": {"x":10. "y":20},
+              "roomId": 1
             }
             */
             if (parsedMsg.type === "draw") {
@@ -143,13 +143,13 @@ const main = async () => {
                 }
 
                 try {
-                    //Bradcasting shape to every socket connected to same room
+                    //Bradcasting shape to every socket connected to same room except the sender
                     userList.forEach((user) => {
-                        if (user.socket.readyState === WebSocket.OPEN) {
+                        if (user.socket.readyState === WebSocket.OPEN && user.userId !== currentUser.userId) {
                             user.socket.send(JSON.stringify({
                                 type: "draw",
                                 message: shapeData,
-                                roomId: roomId
+                                roomId: roomId,
                             }))
                         }
                     })
@@ -186,7 +186,7 @@ const main = async () => {
 }
 main();
 
-
+ 
 
 /*
 User logs in with NextAuth
