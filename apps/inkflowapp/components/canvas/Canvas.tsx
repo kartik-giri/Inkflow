@@ -14,6 +14,7 @@ import {
   Pencil,
   RectangleHorizontal,
   Square,
+  TextInitial,
 } from "lucide-react";
 import { Card } from "../ui/cardWrapper";
 import { Game } from "@/draw/Game";
@@ -90,23 +91,7 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
 
       {/* Shapes menu */}
       <div className={cn(`flex justify-center`)}>
-        <Card className=" absolute top-4 p-1 rounded-md w-fit flex flex-wrap gap-1 md:gap-4">
-          <IconButton
-            className="p-2"
-            onClick={() => setSelectedShape(Shapes.pencil)}
-            activeShape={selectedShape === Shapes.pencil}
-            icon={<Pencil />}
-          ></IconButton>
-
-          <IconButton
-            className="p-2"
-            onClick={() => {
-              setSelectedShape(Shapes.circle);
-            }}
-            activeShape={selectedShape === Shapes.circle}
-            icon={<Circle />}
-          ></IconButton>
-
+        <Card className=" absolute top-4 p-1 rounded-md w-fit flex flex-wrap gap-1 ">
           <IconButton
             className="p-2"
             onClick={() => {
@@ -128,19 +113,43 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
           <IconButton
             className="p-2"
             onClick={() => {
-              setSelectedShape(Shapes.Line);
+              setSelectedShape(Shapes.circle);
             }}
-            activeShape={selectedShape === Shapes.Line}
-            icon={<Minus/>}
+            activeShape={selectedShape === Shapes.circle}
+            icon={<Circle />}
           ></IconButton>
 
           <IconButton
             className="p-2"
             onClick={() => {
               setSelectedShape(Shapes.Arrow);
+              setStorkeWidth(StorkeWidth.mini)
             }}
             activeShape={selectedShape === Shapes.Arrow}
-            icon={<ArrowRight/>}
+            icon={<ArrowRight />}
+          ></IconButton>
+
+          <IconButton
+            className="p-2"
+            onClick={() => {
+              setSelectedShape(Shapes.Line);
+            }}
+            activeShape={selectedShape === Shapes.Line}
+            icon={<Minus />}
+          ></IconButton>
+
+          <IconButton
+            className="p-2"
+            onClick={() => setSelectedShape(Shapes.pencil)}
+            activeShape={selectedShape === Shapes.pencil}
+            icon={<Pencil />}
+          ></IconButton>
+
+          <IconButton
+            className="p-2"
+            onClick={() => setSelectedShape(Shapes.text)}
+            activeShape={selectedShape === Shapes.text}
+            icon={<TextInitial />}
           ></IconButton>
 
           <IconButton
@@ -266,7 +275,7 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
                 <Dot className={cn("scale-[3]")} />
               </div>
             }
-            className="my-1"
+            className={cn`my-1 ${selectedShape === Shapes.Arrow ? "hidden" : ""}`}
           />
 
           <IconButton
@@ -283,7 +292,7 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
                 <Dot className={cn("scale-[4]")} />
               </div>
             }
-            className="my-1"
+            className={cn`my-1 ${selectedShape === Shapes.Arrow ? "hidden" : ""}`}
           />
         </Card>
       </div>

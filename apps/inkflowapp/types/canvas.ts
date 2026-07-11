@@ -5,6 +5,7 @@ export enum Shapes {
     diamond,
     Line,
     Arrow,
+    text,
     move,
     eraser,
     Hand,
@@ -38,9 +39,10 @@ export type Shape =
     }
     | {
         type: "circle";
-        radius: number;
-        centerX: number;
-        centerY: number;
+        x: number,
+        y: number,
+        width: number,
+        height:number,
         storkeWidth: number;
         storkeColor: string;
     }
@@ -49,14 +51,14 @@ export type Shape =
         points: Points[];
         storkeWidth: number;
         storkeColor: string;
-    }|{
+    } | {
         type: "diamond",
-        x:number,
-        y:number,
-        width:number,
-        height:number,
+        x: number,
+        y: number,
+        width: number,
+        height: number,
         storkeColor: string,
-        storkeWidth:number
+        storkeWidth: number
     } | {
         type: "line",
         startX: number,
@@ -65,6 +67,21 @@ export type Shape =
         endY: number,
         storkeColor: string,
         storkeWidth: number
+    } | {
+        type: "arrow",
+        startX: number,
+        startY: number,
+        endX: number,
+        endY: number,
+        storkeColor: string,
+        storkeWidth: number
+    } | {
+        type: "text",
+        x:number,
+        y: number,
+        text:string,
+        storkeWidth:number,
+        storkeColor: string,
     }
 
 export type Points = {
