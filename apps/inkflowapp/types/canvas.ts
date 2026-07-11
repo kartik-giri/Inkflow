@@ -49,7 +49,23 @@ export type Shape =
         points: Points[];
         storkeWidth: number;
         storkeColor: string;
-    };
+    }|{
+        type: "diamond",
+        x:number,
+        y:number,
+        width:number,
+        height:number,
+        storkeColor: string,
+        storkeWidth:number
+    } | {
+        type: "line",
+        startX: number,
+        startY: number,
+        endX: number,
+        endY: number,
+        storkeColor: string,
+        storkeWidth: number
+    }
 
 export type Points = {
     x: number;

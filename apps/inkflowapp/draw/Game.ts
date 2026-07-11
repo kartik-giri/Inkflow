@@ -114,6 +114,31 @@ export class Game {
                 this.ctx.stroke();
                 this.ctx.closePath();
             }
+            else if (shape.type === "diamond") {
+                const centerX = shape.x + shape.width / 2;
+                const centerY = shape.y + shape.height / 2;
+
+                this.ctx.beginPath();
+
+                this.ctx.moveTo(centerX, shape.y);
+                this.ctx.lineTo(shape.x + shape.width, centerY);
+                this.ctx.lineTo(centerX, shape.y + shape.height);
+                this.ctx.lineTo(shape.x, centerY);
+
+                this.ctx.closePath();
+                this.ctx.stroke();
+            }
+            else if (shape.type === "line") {
+                this.ctx.beginPath();
+
+                this.ctx.moveTo(shape.startX,shape.startY);
+
+                this.ctx.lineTo(shape.endX,shape.endY);
+
+                this.ctx.stroke();
+                this.ctx.closePath();
+
+            }
         })
     }
 
@@ -188,6 +213,28 @@ export class Game {
             }
             this.currentPencilPoints = []
         }
+        else if (this.selectedShape === Shapes.diamond) {
+            shape = {
+                type: "diamond",
+                x: this.startX,
+                y: this.startY,
+                width: width,
+                height: height,
+                storkeColor: colorMap[this.storkeColor],
+                storkeWidth: widthMap[this.storkeWidth]
+            }
+        }
+        else if (this.selectedShape === Shapes.Line) {
+            shape = {
+                type: "line",
+                startX: this.startX,
+                startY: this.startY,
+                endX: e.offsetX,
+                endY: e.offsetY,
+                storkeColor: colorMap[this.storkeColor],
+                storkeWidth: widthMap[this.storkeWidth]
+            }
+        }
 
         if (!shape) return
 
@@ -246,8 +293,8 @@ export class Game {
 
             this.ctx.beginPath();
             this.ctx.moveTo(this.currentPencilPoints[0].x, this.currentPencilPoints[1].y);
-            
-            for(let i=1; i < this.currentPencilPoints.length; i++){
+
+            for (let i = 1; i < this.currentPencilPoints.length; i++) {
                 this.ctx.lineTo(this.currentPencilPoints[i].x, this.currentPencilPoints[i].y)
             }
             this.ctx.stroke();
@@ -257,6 +304,37 @@ export class Game {
             this.lastX = e.offsetX;
             this.lastY = e.offsetY
         }
+
+        else if (this.selectedShape === Shapes.diamond) {
+            this.render();
+
+            this.ctx.strokeStyle = colorMap[this.storkeColor];
+            this.ctx.lineWidth = widthMap[this.storkeWidth];
+
+            const centerX = this.startX + width / 2;
+            const centerY = this.startY + height / 2;
+
+            this.ctx.beginPath();
+            this.ctx.moveTo(centerX, this.startY);                 // top
+            this.ctx.lineTo(this.startX + width, centerY);         // right
+            this.ctx.lineTo(centerX, this.startY + height);        // bottom
+            this.ctx.lineTo(this.startX, centerY);                 // left
+
+            this.ctx.closePath();
+            this.ctx.stroke();
+        }
+        else if (this.selectedShape === Shapes.Line) {
+            this.render();
+
+            this.ctx.strokeStyle = colorMap[this.storkeColor];
+            this.ctx.lineWidth = widthMap[this.storkeWidth];
+
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.startX, this.startY);
+            this.ctx.lineTo(e.offsetX, e.offsetY)
+            this.ctx.stroke();
+            this.ctx.closePath();
+        }
     }
 
     onMessage = (e: MessageEvent) => {
@@ -265,7 +343,7 @@ export class Game {
         if (message.type === "draw") {
             const parsedShape = JSON.parse(message.message);
 
-            if (parsedShape.type !== "rect" && parsedShape.type !== "circle" && parsedShape.type !== "pencil") return
+            if (parsedShape.type !== "rect" && parsedShape.type !== "circle" && parsedShape.type !== "pencil" && parsedShape.type !== "diamond" && parsedShape.type !== "line") return
             this.existingShapes.push(parsedShape);
             this.render()
         }
