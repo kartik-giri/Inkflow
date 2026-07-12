@@ -6,6 +6,7 @@ import { drawDiamond } from "./render/drawDiamond";
 import { drawPencil } from "./render/drawPencil";
 import { drawCircle } from "./render/drawCircle";
 import { drawRect } from "./render/drawRect";
+import { drawText } from "./render/drawText";
 
 const colorMap: Record<StorkeColor, string> = {
     [StorkeColor.black]: "#1e1e1e",
@@ -38,6 +39,15 @@ export class Game {
     private clicked: boolean = false;
     private destroyed: boolean = false;
     private currentPencilPoints: Points[] = []
+    private dpr = window.devicePixelRatio || 1;
+
+    //Variables for panning and zooming
+    private panX: number = 0
+    private panY: number = 0
+    private isPanning: boolean = false
+    private lastPanX: number = 0
+    private lastPanY: number = 0
+    private scale: number = 1
 
     private startX: number = 0;
     private startY: number = 0;
@@ -78,7 +88,9 @@ export class Game {
     }
 
     render = () => {
+        this.ctx.setTransform(1, 0, 0, 1, 0, 0)
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+        this.ctx.setTransform(this.scale * this.dpr, 0, 0, this.scale * this.dpr, this.panX * this.dpr, this.panY * this.dpr);
 
         this.existingShapes.forEach((shape) => {
             this.ctx.strokeStyle = shape.storkeColor
@@ -105,6 +117,9 @@ export class Game {
             else if (shape.type === "arrow") {
                 drawArrow(shape.startX, shape.startY, shape.endX, shape.endY, this.ctx)
             }
+            else if (shape.type === "text") {
+                drawText(this.ctx, shape.x, shape.y, shape.text, shape.storkeColor)
+            }
         })
     }
 
@@ -122,28 +137,47 @@ export class Game {
         this.selectedShape = selectedShape;
     }
 
+    getMouseCoordinates = (x: number, y: number) => {
+        return {
+            x: (x - this.panX) / this.scale,
+            y: (y - this.panY) / this.scale,
+        }
+    }
+
     mouseDownHandler = (e: MouseEvent) => {
+        if (e.button === 1) {
+            this.isPanning = true,
+                this.lastPanX = e.clientX,
+                this.lastPanY = e.clientY
+            return
+        }
+
         this.clicked = true;
 
-        this.startX = e.offsetX;
-        this.startY = e.offsetY;
-
-        this.lastX = e.offsetX;
-        this.lastY = e.offsetY;
+        const coords = this.getMouseCoordinates(e.offsetX, e.offsetY);
+        this.startX = coords.x;
+        this.startY = coords.y;
+        this.lastX = coords.x;
+        this.lastY = coords.y;
 
         if (this.selectedShape === Shapes.pencil) {
             this.currentPencilPoints.push({
-                x: e.offsetX,
-                y: e.offsetY
+                x: coords.x,
+                y: coords.y
             })
         }
     }
 
     mouseUpHandler = (e: MouseEvent) => {
+        if (this.isPanning) {
+            this.isPanning = false
+            return
+        }
         this.clicked = false;
 
-        const width = e.offsetX - this.startX;
-        const height = e.offsetY - this.startY
+        const coords = this.getMouseCoordinates(e.offsetX, e.offsetY)
+        const width = coords.x - this.startX;
+        const height = coords.y - this.startY
 
         console.log(`width: ${width}, height: ${height}`)
         let shape: Shape | null = null
@@ -165,8 +199,8 @@ export class Game {
                 type: "circle",
                 x: this.startX,
                 y: this.startY,
-                width: e.offsetX - this.startX,
-                height: e.offsetY - this.startY,
+                width: width,
+                height: height,
                 storkeWidth: widthMap[this.storkeWidth],
                 storkeColor: colorMap[this.storkeColor]
             }
@@ -196,8 +230,8 @@ export class Game {
                 type: "line",
                 startX: this.startX,
                 startY: this.startY,
-                endX: e.offsetX,
-                endY: e.offsetY,
+                endX: coords.x,
+                endY: coords.y,
                 storkeColor: colorMap[this.storkeColor],
                 storkeWidth: widthMap[this.storkeWidth]
             }
@@ -207,8 +241,8 @@ export class Game {
                 type: "arrow",
                 startX: this.startX,
                 startY: this.startY,
-                endX: e.offsetX,
-                endY: e.offsetY,
+                endX: coords.x,
+                endY: coords.y,
                 storkeColor: colorMap[this.storkeColor],
                 storkeWidth: widthMap[this.storkeWidth]
             }
@@ -231,12 +265,23 @@ export class Game {
     }
 
     mouseMoveHandler = (e: MouseEvent) => {
+        if (this.isPanning) {
+            const dx = e.clientX - this.lastPanX;
+            const dy = e.clientY - this.lastPanY;
+            this.panX += dx;
+            this.panY += dy;
+            this.lastPanX = e.clientX;
+            this.lastPanY = e.clientY;
+            this.render();
+            return
+        }
         if (!this.clicked) {
             return
         }
 
-        const width = e.offsetX - this.startX;
-        const height = e.offsetY - this.startY
+        const coods = this.getMouseCoordinates(e.offsetX, e.offsetY)
+        const width = coods.x - this.startX;
+        const height = coods.y - this.startY
 
         if (this.selectedShape === Shapes.rectangle) {
             this.render()
@@ -248,20 +293,20 @@ export class Game {
             this.render()  // clear preview and redraw existing shapes
             this.ctx.strokeStyle = colorMap[this.storkeColor];
             this.ctx.lineWidth = widthMap[this.storkeWidth];
-            drawCircle(this.startX, this.startY, width,height, this.ctx)
+            drawCircle(this.startX, this.startY, width, height, this.ctx)
         }
         else if (this.selectedShape === Shapes.pencil) {
             this.currentPencilPoints.push({
-                x: e.offsetX,
-                y: e.offsetY
+                x: coods.x,
+                y: coods.y
             })
 
             this.render()
             this.ctx.strokeStyle = colorMap[this.storkeColor];
             this.ctx.lineWidth = widthMap[this.storkeWidth];
             drawPencil(this.ctx, this.currentPencilPoints)
-            this.lastX = e.offsetX;
-            this.lastY = e.offsetY
+            this.lastX = coods.x;
+            this.lastY = coods.y
         }
 
         else if (this.selectedShape === Shapes.diamond) {
@@ -275,7 +320,7 @@ export class Game {
             this.render();
             this.ctx.strokeStyle = colorMap[this.storkeColor];
             this.ctx.lineWidth = widthMap[this.storkeWidth];
-            drawLine(this.startX, this.startY, e.offsetX, e.offsetY, this.ctx)
+            drawLine(this.startX, this.startY, coods.x, coods.y, this.ctx)
 
         }
         else if (this.selectedShape === Shapes.Arrow) {
@@ -283,8 +328,39 @@ export class Game {
             this.ctx.strokeStyle = colorMap[this.storkeColor];
             this.ctx.lineWidth = widthMap[this.storkeWidth];
 
-            drawArrow(this.startX, this.startY, e.offsetX, e.offsetY, this.ctx)
+            drawArrow(this.startX, this.startY, coods.x, coods.y, this.ctx)
         }
+    }
+
+    wheelHandler = (e: WheelEvent) => {
+        e.preventDefault()
+
+        // Pinch zoom (ctrl + scroll on mac trackpad)
+        if (e.ctrlKey) {
+            const mouseX = e.offsetX
+            const mouseY = e.offsetY
+
+            // World position before zoom
+            const coords = this.getMouseCoordinates(mouseX, mouseY)
+            const worldX = coords.x
+            const worldY = coords.y
+
+            const zoom = 1 - e.deltaY * 0.01
+            const newScale = Math.min(Math.max(this.scale * zoom, 0.1), 5)
+            this.scale = newScale
+
+            // Keep cursor fixed during zoom
+            this.panX = mouseX - worldX * this.scale
+            this.panY = mouseY - worldY * this.scale
+
+            this.render()
+            return
+        }
+
+        // 
+        this.panX -= e.deltaX
+        this.panY -= e.deltaY
+        this.render()
     }
 
     onMessage = (e: MessageEvent) => {
@@ -299,11 +375,45 @@ export class Game {
         }
     }
 
+    zoomIn = () => {
+        const centerX = this.canvas.clientWidth / 2;
+        const centerY = this.canvas.clientHeight / 2;
+
+        const worldX = (centerX - this.panX) / this.scale;
+        const worldY = (centerY - this.panY) / this.scale;
+
+        this.scale += 0.1;
+
+        this.panX = centerX - worldX * this.scale;
+        this.panY = centerY - worldY * this.scale;
+
+        this.render();
+    }
+
+    zoomOut = () => {
+        if(this.scale <=0.1) return
+        const centerX = this.canvas.clientWidth / 2;
+        const centerY = this.canvas.clientHeight / 2;
+
+        const worldX = (centerX - this.panX) / this.scale;
+        const worldY = (centerY - this.panY) / this.scale;
+
+        this.scale = Math.max(0.1, this.scale-0.1);
+        this.panX = centerX - worldX * this.scale;
+        this.panY = centerY - worldY * this.scale;
+
+        this.render();
+    }
+
+    getZoomPercentage = ()=>{
+        return Math.round(this.scale*100);
+    }
+
     initEvents = () => {
         this.canvas.addEventListener("mousedown", this.mouseDownHandler);
         this.canvas.addEventListener("mouseup", this.mouseUpHandler)
         this.canvas.addEventListener("mousemove", this.mouseMoveHandler);
-
+        this.canvas.addEventListener("wheel", this.wheelHandler, { passive: false })
         this.socket.onmessage = this.onMessage
     }
 
@@ -312,7 +422,7 @@ export class Game {
         this.canvas.removeEventListener("mousedown", this.mouseDownHandler);
         this.canvas.removeEventListener("mouseup", this.mouseUpHandler)
         this.canvas.removeEventListener("mousemove", this.mouseMoveHandler)
-
+        this.canvas.removeEventListener("wheel", this.wheelHandler)
         this.socket.onmessage = null
     }
 

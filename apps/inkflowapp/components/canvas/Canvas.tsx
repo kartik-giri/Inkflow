@@ -29,6 +29,7 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
   const [storkeWidth, setStorkeWidth] = useState<StorkeWidth>(StorkeWidth.mini);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<Game | null>(null);
+  const [zoom, setZoom] = useState(100);
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -123,7 +124,7 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
             className="p-2"
             onClick={() => {
               setSelectedShape(Shapes.Arrow);
-              setStorkeWidth(StorkeWidth.mini)
+              setStorkeWidth(StorkeWidth.mini);
             }}
             activeShape={selectedShape === Shapes.Arrow}
             icon={<ArrowRight />}
@@ -296,6 +297,75 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
             className={cn`my-1 ${selectedShape === Shapes.Arrow ? "hidden" : ""}`}
           />
         </Card>
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          position: "fixed",
+          bottom: "16px",
+          left: "16px",
+          zIndex: 50,
+        }}
+      >
+        <button
+          onClick={() => {
+            gameRef.current?.zoomOut();
+            setZoom(gameRef.current?.getZoomPercentage() ?? 100);
+          }}
+          style={{
+            WebkitAppearance: "none",
+            appearance: "none",
+            background: "white",
+            border: "2px solid #1e1e1e",
+            borderRight: "1px solid #1e1e1e",
+            borderRadius: "16px 0 0 16px",
+            padding: "4px 12px 4px 16px",
+            fontSize: "20px",
+            cursor: "pointer",
+            fontWeight: "500",
+          }}
+        >
+          −
+        </button>
+        <span
+          style={{
+            background: "white",
+            border: "2px solid #1e1e1e",
+            borderLeft: "none",
+            borderRight: "none",
+            padding: "4px 12px",
+            fontSize: "14px",
+            fontWeight: "500",
+            minWidth: "56px",
+            textAlign: "center",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {zoom}%
+        </span>
+        <button
+          onClick={() => {
+            gameRef.current?.zoomIn();
+            setZoom(gameRef.current?.getZoomPercentage() ?? 100);
+          }}
+          style={{
+            WebkitAppearance: "none",
+            appearance: "none",
+            background: "white",
+            border: "2px solid #1e1e1e",
+            borderLeft: "1px solid #1e1e1e",
+            borderRadius: "0 16px 16px 0",
+            padding: "4px 16px 4px 12px",
+            fontSize: "20px",
+            cursor: "pointer",
+            fontWeight: "500",
+          }}
+        >
+          +
+        </button>
       </div>
     </section>
   );

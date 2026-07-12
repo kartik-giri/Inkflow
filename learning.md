@@ -190,3 +190,10 @@ SOlution for this is boolean flag whcih will turn true if clean up is called and
 so the thing is that css got less pixels than retina screen and that's why out shapes look blurry because they are draw on css pixels.
 
 Using dpr we have increases css pixels and scaled the canvas to render shapes correctly.
+
+## Subtracting panning 
+        this.panX -= e.deltaX 
+        this.panY -= e.deltaY
+1. if canvas is moved 60 px right than 
+   screen view of rect which is at 100 -> 100 - 60 =40
+   will become 40 because rect moved 60 px left which makes viewport appear move to right.
