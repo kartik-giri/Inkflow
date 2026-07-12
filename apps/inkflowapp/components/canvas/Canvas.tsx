@@ -226,6 +226,7 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
         </Card>
       </div>
 
+      {/* Storke width menu */}
       <div className={cn(`absolute top-97 left-4`)}>
         <Card className="p-0.5 flex flex-col items-center rounded-md pr-3 py-2 ">
           <IconButton
