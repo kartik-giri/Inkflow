@@ -7,6 +7,7 @@ import { drawPencil } from "./render/drawPencil";
 import { drawCircle } from "./render/drawCircle";
 import { drawRect } from "./render/drawRect";
 import { drawText } from "./render/drawText";
+import { renderShape } from "./render/renderShape";
 
 const colorMap: Record<StorkeColor, string> = {
     [StorkeColor.black]: "#1e1e1e",
@@ -95,31 +96,7 @@ export class Game {
         this.existingShapes.forEach((shape) => {
             this.ctx.strokeStyle = shape.storkeColor
             this.ctx.lineWidth = shape.storkeWidth
-            if (shape.type === "rect") {
-                drawRect(this.ctx, shape.x, shape.y, shape.width, shape.height)
-            }
-            else if (shape.type === "circle") {
-                drawCircle(shape.x, shape.y, shape.width, shape.height, this.ctx)
-            }
-            else if (shape.type === "pencil") {
-                if (shape.points.length < 2) {
-                    return
-                }
-                drawPencil(this.ctx, shape.points)
-            }
-            else if (shape.type === "diamond") {
-                drawDiamond(shape.x, shape.y, shape.width, shape.height, this.ctx)
-            }
-            else if (shape.type === "line") {
-                drawLine(shape.startX, shape.startY, shape.endX, shape.endY, this.ctx)
-
-            }
-            else if (shape.type === "arrow") {
-                drawArrow(shape.startX, shape.startY, shape.endX, shape.endY, this.ctx)
-            }
-            else if (shape.type === "text") {
-                drawText(this.ctx, shape.x, shape.y, shape.text, shape.storkeColor)
-            }
+            renderShape(this.ctx, shape)
         })
     }
 
@@ -382,7 +359,7 @@ export class Game {
         const worldX = (centerX - this.panX) / this.scale;
         const worldY = (centerY - this.panY) / this.scale;
 
-        this.scale += 0.1;
+        this.scale = Math.min(this.scale+0.1, 5);
 
         this.panX = centerX - worldX * this.scale;
         this.panY = centerY - worldY * this.scale;
@@ -391,22 +368,22 @@ export class Game {
     }
 
     zoomOut = () => {
-        if(this.scale <=0.1) return
+        if (this.scale <= 0.1) return
         const centerX = this.canvas.clientWidth / 2;
         const centerY = this.canvas.clientHeight / 2;
 
         const worldX = (centerX - this.panX) / this.scale;
         const worldY = (centerY - this.panY) / this.scale;
 
-        this.scale = Math.max(0.1, this.scale-0.1);
+        this.scale = Math.max(0.1, this.scale - 0.1);
         this.panX = centerX - worldX * this.scale;
         this.panY = centerY - worldY * this.scale;
 
         this.render();
     }
 
-    getZoomPercentage = ()=>{
-        return Math.round(this.scale*100);
+    getZoomPercentage = () => {
+        return Math.round(this.scale * 100);
     }
 
     initEvents = () => {
