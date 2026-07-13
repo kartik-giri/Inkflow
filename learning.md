@@ -197,3 +197,63 @@ Using dpr we have increases css pixels and scaled the canvas to render shapes co
 1. if canvas is moved 60 px right than 
    screen view of rect which is at 100 -> 100 - 60 =40
    will become 40 because rect moved 60 px left which makes viewport appear move to right.
+
+## Panning 
+Shape at world position x=100
+panX = 0
+
+screenX = worldX * scale + panX
+screenX = 100 * 1 + 0 = 100
+Shape appears at screen pixel 100
+
+You swipe right → panX becomes +50
+
+screenX = 100 * 1 + 50 = 150
+Shape now appears at screen pixel 150
+→ Shape MOVED RIGHT on screen ✅
+
+The empty canvas to the LEFT is now visible
+→ Canvas background MOVED LEFT ✅
+
+## for loop vs for each
+Rule of thumb
+
+Use forEach when:
+
+arr.forEach(user => {
+    console.log(user.name);
+});
+
+You simply want to perform an action on every element.
+
+Use for (or for...of) when:
+
+you need break
+you need continue
+you need to return early
+you need the index in a custom way
+you need maximum control
+
+Example:
+
+for (const user of users) {
+    if (user.id === targetId) {
+        return user;
+    }
+}
+
+This is impossible with forEach.
+
+Many modern TypeScript developers actually prefer:
+
+for (const item of arr) {
+    ...
+}
+
+over
+
+for (let i = 0; i < arr.length; i++) {
+    ...
+}
+
+because it gives the same control (break, continue, return) while being cleaner to read.

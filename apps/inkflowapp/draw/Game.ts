@@ -41,6 +41,7 @@ export class Game {
     private destroyed: boolean = false;
     private currentPencilPoints: Points[] = []
     private dpr = window.devicePixelRatio || 1;
+    private setZoomValue!:(zoom:number)=>void;
 
     //Variables for panning and zooming
     private panX: number = 0
@@ -63,10 +64,12 @@ export class Game {
         selectedShape: Shapes,
         storkeColor: StorkeColor,
         storkeWidth: StorkeWidth,
+        setZoom:(zoom:number)=>void
     ) {
         this.canvas = canvas;
         this.roomId = roomId;
         this.socket = socket;
+        this.setZoomValue = setZoom
 
         this.selectedShape = selectedShape;
         this.storkeWidth = storkeWidth;
@@ -330,11 +333,10 @@ export class Game {
             this.panX = mouseX - worldX * this.scale
             this.panY = mouseY - worldY * this.scale
 
+            this.setZoomPercentage()
             this.render()
             return
         }
-
-        // 
         this.panX -= e.deltaX
         this.panY -= e.deltaY
         this.render()
@@ -384,6 +386,10 @@ export class Game {
 
     getZoomPercentage = () => {
         return Math.round(this.scale * 100);
+    }
+
+    setZoomPercentage = ()=>{
+        this.setZoomValue(Math.round(this.scale * 100))
     }
 
     initEvents = () => {
