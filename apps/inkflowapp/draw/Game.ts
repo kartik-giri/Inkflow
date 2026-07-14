@@ -104,8 +104,8 @@ export class Game {
         })
     }
 
-    deleteShape = (id:string, shape:Shape) => {
-        this.existingShapes = this.existingShapes.filter((shape)=>{
+    deleteShape = (id: string, shape: Shape) => {
+        this.existingShapes = this.existingShapes.filter((shape) => {
             return shape.id !== id
         })
         this.render()
@@ -113,8 +113,8 @@ export class Game {
         this.socket.send(JSON.stringify({
             type: "erase",
             message: JSON.stringify({
-                id:id,
-                shape:shape
+                id: id,
+                shape: shape
             }),
             roomId: this.roomId
         }))
@@ -180,11 +180,17 @@ export class Game {
         let shape: Shape | null = null
 
         if (this.selectedShape === Shapes.rectangle) {
+            //Normalization
+            const x = Math.min(this.startX, coords.x);
+            const y = Math.min(this.startY, coords.y);
+
+            const width = Math.abs(coords.x - this.startX);
+            const height = Math.abs(coords.y - this.startY);
             shape = {
                 type: "rect",
                 id: crypto.randomUUID(),
-                x: this.startX,
-                y: this.startY,
+                x: x,
+                y: y,
                 width: width,
                 height: height,
                 storkeColor: colorMap[this.storkeColor],
@@ -192,7 +198,6 @@ export class Game {
             }
         }
         else if (this.selectedShape === Shapes.circle) {
-
             shape = {
                 type: "circle",
                 id: crypto.randomUUID(),
@@ -215,11 +220,17 @@ export class Game {
             this.currentPencilPoints = []
         }
         else if (this.selectedShape === Shapes.diamond) {
+            //Normalization
+            const x = Math.min(this.startX, coords.x);
+            const y = Math.min(this.startY, coords.y);
+
+            const width = Math.abs(coords.x - this.startX);
+            const height = Math.abs(coords.y - this.startY);
             shape = {
                 type: "diamond",
                 id: crypto.randomUUID(),
-                x: this.startX,
-                y: this.startY,
+                x: x,
+                y: y,
                 width: width,
                 height: height,
                 storkeColor: colorMap[this.storkeColor],
@@ -382,8 +393,8 @@ export class Game {
             this.existingShapes.push(parsedShape);
             this.render()
         }
-        else if(message.type === "erase"){
-            this.existingShapes = this.existingShapes.filter((shape)=>{
+        else if (message.type === "erase") {
+            this.existingShapes = this.existingShapes.filter((shape) => {
                 return shape.id !== message.id
             })
             this.render()
