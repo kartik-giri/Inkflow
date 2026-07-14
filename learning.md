@@ -257,3 +257,12 @@ for (let i = 0; i < arr.length; i++) {
 }
 
 because it gives the same control (break, continue, return) while being cleaner to read.
+
+## Pass by value and reference
+JavaScript is always pass by value. -> creates copy 
+
+But for objects and arrays, the value being copied is a reference. -> uses exact variable
+
+## REDIS BUG
+1. reids can only string so that;s why we need to conver the string into json object beofre storing it itn to db
+2. And adnd prisma automatically convers json obj in to js obj beofre retruning. 

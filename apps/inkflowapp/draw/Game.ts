@@ -8,6 +8,7 @@ import { drawCircle } from "./render/drawCircle";
 import { drawRect } from "./render/drawRect";
 import { drawText } from "./render/drawText";
 import { renderShape } from "./render/renderShape";
+import { isPointsAtShape } from "./eraser/isPointAtShape";
 
 const colorMap: Record<StorkeColor, string> = {
     [StorkeColor.black]: "#1e1e1e",
@@ -41,7 +42,7 @@ export class Game {
     private destroyed: boolean = false;
     private currentPencilPoints: Points[] = []
     private dpr = window.devicePixelRatio || 1;
-    private setZoomValue!:(zoom:number)=>void;
+    private setZoomValue!: (zoom: number) => void;
 
     //Variables for panning and zooming
     private panX: number = 0
@@ -64,7 +65,7 @@ export class Game {
         selectedShape: Shapes,
         storkeColor: StorkeColor,
         storkeWidth: StorkeWidth,
-        setZoom:(zoom:number)=>void
+        setZoom: (zoom: number) => void
     ) {
         this.canvas = canvas;
         this.roomId = roomId;
@@ -85,7 +86,7 @@ export class Game {
         this.setStorkeWidth(storkeWidth);
         this.ctx.imageSmoothingEnabled = true;
 
-        this.existingShapes = await getShapesAction(this.roomId);
+        this.existingShapes = await getShapesAction(this.roomId) as Shape[];
         if (this.destroyed === true) return
         this.initEvents()
         this.render()
@@ -101,6 +102,22 @@ export class Game {
             this.ctx.lineWidth = shape.storkeWidth
             renderShape(this.ctx, shape)
         })
+    }
+
+    deleteShape = (id:string, shape:Shape) => {
+        this.existingShapes = this.existingShapes.filter((shape)=>{
+            return shape.id !== id
+        })
+        this.render()
+
+        this.socket.send(JSON.stringify({
+            type: "erase",
+            message: JSON.stringify({
+                id:id,
+                shape:shape
+            }),
+            roomId: this.roomId
+        }))
     }
 
     setColor = (storkeColor: StorkeColor) => {
@@ -165,6 +182,7 @@ export class Game {
         if (this.selectedShape === Shapes.rectangle) {
             shape = {
                 type: "rect",
+                id: crypto.randomUUID(),
                 x: this.startX,
                 y: this.startY,
                 width: width,
@@ -177,6 +195,7 @@ export class Game {
 
             shape = {
                 type: "circle",
+                id: crypto.randomUUID(),
                 x: this.startX,
                 y: this.startY,
                 width: width,
@@ -188,6 +207,7 @@ export class Game {
         else if (this.selectedShape === Shapes.pencil) {
             shape = {
                 type: "pencil",
+                id: crypto.randomUUID(),
                 points: this.currentPencilPoints,
                 storkeColor: colorMap[this.storkeColor],
                 storkeWidth: widthMap[this.storkeWidth]
@@ -197,6 +217,7 @@ export class Game {
         else if (this.selectedShape === Shapes.diamond) {
             shape = {
                 type: "diamond",
+                id: crypto.randomUUID(),
                 x: this.startX,
                 y: this.startY,
                 width: width,
@@ -208,6 +229,7 @@ export class Game {
         else if (this.selectedShape === Shapes.Line) {
             shape = {
                 type: "line",
+                id: crypto.randomUUID(),
                 startX: this.startX,
                 startY: this.startY,
                 endX: coords.x,
@@ -219,6 +241,7 @@ export class Game {
         else if (this.selectedShape === Shapes.Arrow) {
             shape = {
                 type: "arrow",
+                id: crypto.randomUUID(),
                 startX: this.startX,
                 startY: this.startY,
                 endX: coords.x,
@@ -262,6 +285,13 @@ export class Game {
         const coods = this.getMouseCoordinates(e.offsetX, e.offsetY)
         const width = coods.x - this.startX;
         const height = coods.y - this.startY
+
+        if (this.selectedShape === Shapes.eraser) {
+            const result = isPointsAtShape(coods.x, coods.y, this.existingShapes);
+            if (!result) return
+            this.deleteShape(result.id, result.shape);
+            return
+        }
 
         if (this.selectedShape === Shapes.rectangle) {
             this.render()
@@ -352,6 +382,12 @@ export class Game {
             this.existingShapes.push(parsedShape);
             this.render()
         }
+        else if(message.type === "erase"){
+            this.existingShapes = this.existingShapes.filter((shape)=>{
+                return shape.id !== message.id
+            })
+            this.render()
+        }
     }
 
     zoomIn = () => {
@@ -361,7 +397,7 @@ export class Game {
         const worldX = (centerX - this.panX) / this.scale;
         const worldY = (centerY - this.panY) / this.scale;
 
-        this.scale = Math.min(this.scale+0.1, 5);
+        this.scale = Math.min(this.scale + 0.1, 5);
 
         this.panX = centerX - worldX * this.scale;
         this.panY = centerY - worldY * this.scale;
@@ -388,7 +424,7 @@ export class Game {
         return Math.round(this.scale * 100);
     }
 
-    setZoomPercentage = ()=>{
+    setZoomPercentage = () => {
         this.setZoomValue(Math.round(this.scale * 100))
     }
 

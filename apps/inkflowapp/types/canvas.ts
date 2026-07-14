@@ -30,6 +30,7 @@ export enum StorkeWidth {
 export type Shape =
     | {
         type: "rect";
+        id: string;
         x: number;
         y: number;
         width: number;
@@ -39,20 +40,23 @@ export type Shape =
     }
     | {
         type: "circle";
+        id: string;
         x: number,
         y: number,
         width: number,
-        height:number,
+        height: number,
         storkeWidth: number;
         storkeColor: string;
     }
     | {
         type: "pencil";
+        id: string;
         points: Points[];
         storkeWidth: number;
         storkeColor: string;
     } | {
         type: "diamond",
+        id: string;
         x: number,
         y: number,
         width: number,
@@ -61,6 +65,7 @@ export type Shape =
         storkeWidth: number
     } | {
         type: "line",
+        id: string;
         startX: number,
         startY: number,
         endX: number,
@@ -69,6 +74,7 @@ export type Shape =
         storkeWidth: number
     } | {
         type: "arrow",
+        id: string;
         startX: number,
         startY: number,
         endX: number,
@@ -77,10 +83,11 @@ export type Shape =
         storkeWidth: number
     } | {
         type: "text",
-        x:number,
+        id: string;
+        x: number,
         y: number,
-        text:string,
-        storkeWidth:number,
+        text: string,
+        storkeWidth: number,
         storkeColor: string,
     }
 

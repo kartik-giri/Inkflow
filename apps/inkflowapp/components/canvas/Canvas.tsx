@@ -85,7 +85,7 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
         className={cn(
           `bg-white  bg-[radial-gradient(#1e1e1e15_1px,transparent_2px)] [background-size:24px_24px]`,
         )}
-        style={{ width: width, height: height }}
+        style={{ width: width, height: height, cursor:selectedShape === Shapes.eraser?"crosshair":"default" }}
         width={width}
         height={height}
         ref={canvasRef}
@@ -175,6 +175,7 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
       </div>
 
       {/* Colors menu */}
+      {selectedShape !== Shapes.eraser && 
       <div className={cn(`absolute top-40 left-4`)}>
         <Card className="p-0.5 flex flex-col rounded-md pr-3 py-2 ">
           <IconButton
@@ -227,8 +228,10 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
           />
         </Card>
       </div>
+}
 
       {/* Storke width menu */}
+      {selectedShape !== Shapes.eraser &&
       <div className={cn(`absolute top-97 left-4`)}>
         <Card className="p-0.5 flex flex-col items-center rounded-md pr-3 py-2 ">
           <IconButton
@@ -299,6 +302,7 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
           />
         </Card>
       </div>
+      }
 
       <div
         style={{

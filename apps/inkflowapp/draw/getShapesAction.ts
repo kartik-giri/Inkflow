@@ -11,7 +11,7 @@ export const getShapesAction = async(roomId:number)=>{
         })
 
         const allShapes = shapes.map((element)=>{
-            return JSON.parse(element.shape as string)
+            return element.shape 
         })
 
         return allShapes
