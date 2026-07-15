@@ -163,11 +163,20 @@ export class Game {
                 y: coords.y
             })
         }
+        else if (this.selectedShape === Shapes.text) {
+            this.handleTextInput(e, coords);
+            this.clicked = false; // Prevent dragging logic from firing
+            return;
+        }
     }
 
     mouseUpHandler = (e: MouseEvent) => {
         if (this.isPanning) {
             this.isPanning = false
+            return 
+        }
+
+        if (this.selectedShape === Shapes.text) {
             return
         }
         this.clicked = false;
@@ -293,18 +302,22 @@ export class Game {
             return
         }
 
+        if(this.selectedShape === Shapes.text){
+            return
+        }
+
         const coods = this.getMouseCoordinates(e.offsetX, e.offsetY)
         const width = coods.x - this.startX;
         const height = coods.y - this.startY
 
         if (this.selectedShape === Shapes.eraser) {
-            const result = isPointsAtShape(coods.x, coods.y, this.existingShapes);
+            const result = isPointsAtShape(coods.x, coods.y, this.existingShapes, this.ctx);
             if (!result) return
             this.deleteShape(result.id, result.shape);
             return
         }
 
-        if (this.selectedShape === Shapes.rectangle) {
+        else if (this.selectedShape === Shapes.rectangle) {
             this.render()
             this.ctx.strokeStyle = colorMap[this.storkeColor];
             this.ctx.lineWidth = widthMap[this.storkeWidth];
@@ -389,7 +402,7 @@ export class Game {
         if (message.type === "draw") {
             const parsedShape = JSON.parse(message.message);
 
-            if (parsedShape.type !== "rect" && parsedShape.type !== "circle" && parsedShape.type !== "pencil" && parsedShape.type !== "diamond" && parsedShape.type !== "line" && parsedShape.type !== "arrow") return
+            if (parsedShape.type !== "rect" && parsedShape.type !== "circle" && parsedShape.type !== "pencil" && parsedShape.type !== "diamond" && parsedShape.type !== "line" && parsedShape.type !== "arrow" && parsedShape.type !== "text") return
             this.existingShapes.push(parsedShape);
             this.render()
         }
@@ -456,5 +469,95 @@ export class Game {
         this.socket.onmessage = null
     }
 
+    private handleTextInput = (e: MouseEvent, worldCoords: { x: number, y: number }) => {
+        // Prevent spawning multiple text boxes
+        if (document.getElementById('canvas-text-input')) return;
+
+        const textArea = document.createElement("textarea");
+        textArea.id = 'canvas-text-input';
+
+        // Position it exactly where the user clicked on the screen
+        textArea.style.position = "fixed";
+        textArea.style.left = `${e.clientX}px`;
+        textArea.style.top = `${e.clientY}px`;
+
+        // Styling to make it look like it's part of the canvas
+        textArea.style.margin = "0";
+        textArea.style.padding = "0";
+        // textArea.style.border = "1px dashed #ccc"; // Dashed border to show it's active
+        textArea.style.outline = "none";
+        textArea.style.background = "transparent";
+        textArea.style.color = colorMap[this.storkeColor];
+        textArea.style.font = "24px coming-soon"; // Keep this synced with your drawText font
+        textArea.style.zIndex = "1000";
+        textArea.style.resize = "none";
+        textArea.style.overflow = "hidden";
+        textArea.style.whiteSpace = "pre";
+        textArea.style.minWidth = "50px";
+        textArea.style.minHeight = "30px";
+        // textArea.style.fontSize = String(widthMap[this.storkeWidth])
+
+        document.body.appendChild(textArea);
+
+        //Running focus() after the current JavaScript execution is finished and after the DOM has been updated. So textArea exist r=to focus"
+        setTimeout(() => textArea.focus(), 0);
+
+        let isSubmitted = false;
+
+        // Function to finalize the text
+        const submitText = () => {
+            if (isSubmitted) return;
+            isSubmitted = true;
+
+            const text = textArea.value;
+            textArea.remove();
+
+            // If the user actually typed something, save it as a shape
+            if (text.trim().length > 0) {
+                const shape = {
+                    type: "text",
+                    id: crypto.randomUUID(),
+                    x: worldCoords.x,
+                    y: worldCoords.y,
+                    text: text,
+                    storkeColor: colorMap[this.storkeColor],
+                    // You can map storkeWidth to font sizes if you want
+                    storkeWidth: widthMap[this.storkeWidth]
+                };
+
+                this.existingShapes.push(shape as any);
+                this.render();
+
+                this.socket.send(
+                    JSON.stringify({
+                        type: "draw",
+                        message: JSON.stringify(shape),
+                        roomId: this.roomId
+                    })
+                );
+            }
+        };
+
+        // Listeners to trigger submission
+        textArea.addEventListener("blur", submitText); // Triggers when clicking outside
+        textArea.addEventListener("keydown", (keyEvent) => {
+            if (keyEvent.key === "Enter" && !keyEvent.shiftKey) {
+                // keyEvent.preventDefault();
+                submitText();
+            }
+            if (keyEvent.key === "Escape") {
+                isSubmitted = true;
+                textArea.remove(); // Cancel without saving
+            }
+        });
+
+        // Optional: Auto-resize textarea as user types
+        textArea.addEventListener("input", () => {
+            textArea.style.height = "auto";
+            textArea.style.height = textArea.scrollHeight + "px";
+            textArea.style.width = "auto";
+            textArea.style.width = textArea.scrollWidth + "px";
+        });
+    }
 
 }

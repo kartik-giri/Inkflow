@@ -266,3 +266,206 @@ But for objects and arrays, the value being copied is a reference. -> uses exact
 ## REDIS BUG
 1. reids can only string so that;s why we need to conver the string into json object beofre storing it itn to db
 2. And adnd prisma automatically convers json obj in to js obj beofre retruning. 
+
+## Drawing text on canvas
+1. The canvas can't natively accept keyboard input. So when user selects the text tool and clicks, you create a real HTML <textarea> element floating over the canvas at that exact position. User types in it, then it disappears and the text gets drawn permanently on the canvas.
+2. 
+User clicks canvas with text tool
+      ↓
+Real <textarea> appears at that position
+      ↓
+User types
+      ↓
+User presses Enter or clicks away
+      ↓
+textarea disappears
+Text committed to canvas as a shape
+3. 
+screenX = e.clientX     → where textarea appears visually
+                           changes when you pan/zoom
+                           
+worldX = worldCoords.x  → where shape is stored
+                           stays fixed regardless of pan/zoom
+                           
+textarea uses screenX ✅  (needs to appear at click position)
+shape uses worldX ✅      (needs to survive pan/zoom)
+
+Sure. Let me break it down section by section.
+
+---
+
+**The big picture:**
+
+The canvas can't natively accept keyboard input. So when user selects the text tool and clicks, you create a real HTML `<textarea>` element floating over the canvas at that exact position. User types in it, then it disappears and the text gets drawn permanently on the canvas.
+
+```
+User clicks canvas with text tool
+      ↓
+Real <textarea> appears at that position
+      ↓
+User types
+      ↓
+User presses Enter or clicks away
+      ↓
+textarea disappears
+Text committed to canvas as a shape
+```
+
+---
+
+**Part 1 — Prevent duplicate text boxes:**
+
+```typescript
+if (document.getElementById('canvas-text-input')) return
+```
+
+If user somehow clicks twice while a textarea is already open — don't create a second one. The `id` check ensures only one textarea exists at a time.
+
+---
+
+**Part 2 — Create and position the textarea:**
+
+```typescript
+const textArea = document.createElement("textarea")
+textArea.id = 'canvas-text-input'
+
+textArea.style.position = "fixed"
+textArea.style.left = `${e.clientX}px`   // ← screen X where user clicked
+textArea.style.top = `${e.clientY}px`    // ← screen Y where user clicked
+```
+
+`fixed` positioning means it's placed relative to the viewport — so it appears exactly where you clicked on screen, sitting on top of the canvas visually.
+
+```typescript
+textArea.style.background = "transparent"  // ← invisible background
+textArea.style.outline = "none"            // ← no focus ring
+textArea.style.resize = "none"             // ← no resize handle
+textArea.style.zIndex = "1000"             // ← sits above canvas
+```
+
+These styles make it look like you're typing directly onto the canvas — the textarea is invisible except for the text itself.
+
+---
+
+**Part 3 — Append and focus:**
+
+```typescript
+document.body.appendChild(textArea)
+setTimeout(() => textArea.focus(), 0)
+```
+
+`setTimeout(..., 0)` delays focus by one event loop tick. This is needed because the `mousedown` event is still being processed when this code runs — focusing immediately can get cancelled by the browser. The tiny delay lets the event finish first.
+
+---
+
+**Part 4 — The `isSubmitted` flag:**
+
+```typescript
+let isSubmitted = false
+
+const submitText = () => {
+    if (isSubmitted) return  // ← prevent double submission
+    isSubmitted = true
+    // ...
+}
+```
+
+This solves a subtle bug — when user presses Enter:
+1. `keydown` event fires → calls `submitText()`
+2. Enter key causes textarea to lose focus
+3. `blur` event fires → also calls `submitText()`
+
+Without the flag, text would be submitted twice — two shapes created. The flag ensures `submitText` only runs once no matter how many times it's called.
+
+---
+
+**Part 5 — `submitText` function:**
+
+```typescript
+const submitText = () => {
+    if (isSubmitted) return
+    isSubmitted = true
+
+    const text = textArea.value    // ← get what user typed
+    textArea.remove()              // ← remove the HTML textarea
+
+    if (text.trim().length > 0) {  // ← only save if not empty
+        const shape = {
+            type: "text",
+            id: crypto.randomUUID(),
+            x: worldCoords.x,     // ← world position (not screen position)
+            y: worldCoords.y,     // ← important for pan/zoom to work
+            text: text,
+            storkeColor: colorMap[this.storkeColor],
+            storkeWidth: widthMap[this.storkeWidth]
+        }
+
+        this.existingShapes.push(shape as any)
+        this.render()              // ← draw it on canvas
+
+        this.socket.send(...)      // ← broadcast to other users
+    }
+}
+```
+
+Notice it uses `worldCoords.x/y` not `e.clientX/y`. This is critical — the textarea is positioned using screen coordinates but the shape is stored in world coordinates so it works correctly with pan and zoom.
+
+---
+
+**Part 6 — Three ways to trigger submission:**
+
+```typescript
+// 1. Click outside → blur fires
+textArea.addEventListener("blur", submitText)
+
+// 2. Press Enter (not Shift+Enter which adds new line)
+textArea.addEventListener("keydown", (keyEvent) => {
+    if (keyEvent.key === "Enter" && !keyEvent.shiftKey) {
+        keyEvent.preventDefault()  // ← stops Enter from adding a newline
+        submitText()
+    }
+
+    // 3. Press Escape → cancel without saving
+    if (keyEvent.key === "Escape") {
+        isSubmitted = true   // ← set flag so blur doesn't submit
+        textArea.remove()    // ← just remove, don't save
+    }
+})
+```
+
+---
+
+**Part 7 — Auto-resize:**
+
+```typescript
+textArea.addEventListener("input", () => {
+    textarea.style.height = "auto"
+    textarea.style.height = textarea.scrollHeight + "px"
+    textarea.style.width = "auto"
+    textarea.style.width = textarea.scrollWidth + "px"
+})
+```
+
+Every keystroke:
+1. Reset height to `auto` so `scrollHeight` recalculates correctly
+2. Set height to exact content height
+3. Same for width
+
+This makes the textarea grow as you type — so it always shows all your text without scrollbars, making it feel like you're typing directly on the canvas.
+
+---
+
+**The two coordinate systems in this function:**
+
+```
+screenX = e.clientX     → where textarea appears visually
+                           changes when you pan/zoom
+                           
+worldX = worldCoords.x  → where shape is stored
+                           stays fixed regardless of pan/zoom
+                           
+textarea uses screenX ✅  (needs to appear at click position)
+shape uses worldX ✅      (needs to survive pan/zoom)
+```
+
+This is the most important design decision in the whole function — using the right coordinate system for each purpose.

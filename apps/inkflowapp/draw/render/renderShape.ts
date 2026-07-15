@@ -5,6 +5,7 @@ import { drawPencil } from "./drawPencil";
 import { drawDiamond } from "./drawDiamond";
 import { drawLine } from "./drawLine";
 import { drawArrow } from "./drawArrow";
+import { drawText } from "./drawText";
 
 export const renderShape = (ctx: CanvasRenderingContext2D, shape: Shape) => {
     switch (shape.type) {
@@ -14,7 +15,6 @@ export const renderShape = (ctx: CanvasRenderingContext2D, shape: Shape) => {
         case "circle":
             drawCircle(shape.x, shape.y, shape.width, shape.height, ctx)
             break;
-
         case "pencil":
             drawPencil(ctx, shape.points)
             break;
@@ -24,11 +24,11 @@ export const renderShape = (ctx: CanvasRenderingContext2D, shape: Shape) => {
         case "line":
             drawLine(shape.startX, shape.startY, shape.endX, shape.endY, ctx)
             break;
-                case "arrow":
-                drawArrow(shape.startX, shape.startY, shape.endX, shape.endY, ctx)
+        case "arrow":
+            drawArrow(shape.startX, shape.startY, shape.endX, shape.endY, ctx)
             break;
-        case "line":
-            drawLine(shape.startX, shape.startY, shape.endX, shape.endY, ctx)
+        case "text":
+            drawText(ctx, shape.x, shape.y, shape.text, shape.storkeColor)
             break;
     }
 }
