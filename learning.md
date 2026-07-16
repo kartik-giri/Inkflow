@@ -469,3 +469,7 @@ shape uses worldX ✅      (needs to survive pan/zoom)
 ```
 
 This is the most important design decision in the whole function — using the right coordinate system for each purpose.
+
+## The Next.js Best Practice
+In Next.js, you should always use <Link> for navigating between pages.
+You should only use router.push() for programmatic navigation—like redirecting a user after they submit a login form or finish an API call.

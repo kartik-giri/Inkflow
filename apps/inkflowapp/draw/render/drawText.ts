@@ -7,8 +7,9 @@ export const drawText = (
     color: string
 ) => {
     ctx.fillStyle = color;
-    ctx.font = "24px coming-soon"; // Make sure this matches the textarea font
+    ctx.font = "24px sans-serif"; // Make sure this matches the textarea font
     ctx.textBaseline = "top"; // Important so the text aligns with where the click happened
+    
     
     // Handle multi-line text
     const lines = text.split('\n');

@@ -5,7 +5,7 @@ import { Plus } from "lucide-react";
 
 const formatName = (name:string)=>{
   const formattedName =
-  name.charAt(0).toUpperCase() + name.slice(1);
+  name.charAt(0).toUpperCase() +name.slice(1);
 
 const possessive = formattedName.endsWith("s")
   ? `${formattedName}'`
@@ -27,7 +27,7 @@ const Title = ({name, setOpen}:{name:string, setOpen:(state:boolean)=>void})=>{
             </h1>
 
             <div>
-                <Button onclick={()=>{
+                <Button onClick={()=>{
                     setOpen(true)
                 }}><Plus/>Create Canvas</Button>
             </div>

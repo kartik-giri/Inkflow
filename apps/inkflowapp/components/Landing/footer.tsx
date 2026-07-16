@@ -8,10 +8,10 @@ import LinkedinIcon from "../icons/linkedin";
 const Footer = () => {
   return (
     <section
-      className={cn(`py-20 grid grid-cols-3  bg-[#f2ede2] px-4 xl:px-27`)}
+      className={cn(`py-20 md:grid grid-cols-3 bg-[#f2ede2] px-4 xl:px-27 `)}
     >
-      <div className={cn(``)}>
-        <div className={cn(``)}>
+      <div>
+        <div >
           <Logo />
         </div>
         <div
@@ -50,23 +50,25 @@ const Footer = () => {
         </div>
       </div>
 
+      {/* <div> */}
       <div>
-        <div className={cn(`text-sm text-gray-500`)}>
+        <div className={cn(`text-sm mt-6 md:mt-0 text-gray-500`)}>
           <p>PRODUCT</p>
         </div>
-        <div className={cn(`py-5`)}>Features</div>
+        <div className={cn(`py-3`)}>Features</div>
         <div>Demo Video</div>
       </div>
 
       <div>
-        <div className={cn(`text-sm text-gray-500`)}>
+        <div className={cn(`text-sm mt-12 md:mt-0 text-gray-500`)}>
           <p>CONTACT</p>
         </div>
-        <div className={cn(`py-5`)}>Kartikgiri1t30@gmail.com</div>
+        <div className={cn(`py-3`)}>Kartikgiri1t30@gmail.com</div>
         <a href="https://github.com/kartik-giri" target="_blank" className="cursor-pointer"> 
         <div className="flex gap-1">Github <ArrowRight/></div>
         </a>
       </div>
+      {/* </div> */}
     </section>
   );
 };

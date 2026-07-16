@@ -488,14 +488,14 @@ export class Game {
         textArea.style.outline = "none";
         textArea.style.background = "transparent";
         textArea.style.color = colorMap[this.storkeColor];
-        textArea.style.font = "24px coming-soon"; // Keep this synced with your drawText font
+        textArea.style.font = "20px sans-serif"; // Keep this synced with your drawText font
         textArea.style.zIndex = "1000";
         textArea.style.resize = "none";
         textArea.style.overflow = "hidden";
         textArea.style.whiteSpace = "pre";
         textArea.style.minWidth = "50px";
         textArea.style.minHeight = "30px";
-        // textArea.style.fontSize = String(widthMap[this.storkeWidth])
+        textArea.style.fontSize = `${String(widthMap[this.storkeWidth])}0px`
 
         document.body.appendChild(textArea);
 
@@ -541,10 +541,10 @@ export class Game {
         // Listeners to trigger submission
         textArea.addEventListener("blur", submitText); // Triggers when clicking outside
         textArea.addEventListener("keydown", (keyEvent) => {
-            if (keyEvent.key === "Enter" && !keyEvent.shiftKey) {
-                // keyEvent.preventDefault();
-                submitText();
-            }
+            // if (keyEvent.key === "Enter" && !keyEvent.shiftKey) {
+            //     // keyEvent.preventDefault();
+            //     submitText();
+            // }
             if (keyEvent.key === "Escape") {
                 isSubmitted = true;
                 textArea.remove(); // Cancel without saving

@@ -17,7 +17,7 @@ const DashNavBar = ({ email, name }: { email: string; name: string }) => {
       <div className={cn(`flex gap-3`)}>
         <div>
           <Button
-            onclick={() => {
+            onClick={() => {
               signOut({ callbackUrl: "/" });
             }}
           >

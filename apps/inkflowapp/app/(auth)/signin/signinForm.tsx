@@ -63,11 +63,13 @@ export const SigninForm = () => {
                         <Button
                             type="submit"
                             disabled={isPending}
+                            // onClick={()=>alert("clicked")}
                             className="w-full rounded-md cursor-pointer"
                             icon={<ArrowRight />}
                         >
                             {isPending ? "Signing in..." : "Sign in"}
                         </Button>
+                        {/* <button className="touch-manipulation" onClick={()=>alert("clicked!")}>click</button> */}
                     </div>
                 </form>
             </Card>

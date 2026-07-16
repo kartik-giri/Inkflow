@@ -63,7 +63,7 @@ const CreateCanvas = ({ setClose }: { setClose: (state: boolean) => void }) => {
           placeholder="Canvas name..."
           className="border rounded-md mt-15 mb-5 h-10 p-2 w-full"
         />
-        <Button disabled={isLoading} onclick={()=>{
+        <Button disabled={isLoading} onClick={()=>{
             createRoom()
         }} className=" w-full">{isLoading?"Creating Room...":"Create Room"}</Button>
       </Card>

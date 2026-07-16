@@ -11,7 +11,7 @@ const HeroSection = ()=>{
         <section className={cn( "flex flex-col justify-center items-center pt-40 pb-65",
     // "bg-[radial-gradient(ellipse_at_center,#E3533620_0%,#ffffff_100%)]",
     "bg-[radial-gradient(#1e1e1e15_1px,transparent_2px)] [background-size:24px_24px]",)}>
-        <div className={cn(`flex flex-col justify-center items-center bg-[radial-gradient(ellipse_at_center,#E3533620_0%,#ffffff_70%)] `)}>
+        <div className={cn(`flex flex-col justify-center items-center bg-[radial-gradient(ellipse_at_center,#E3533620_0%,#ffffff_75%)] `)}>
             <h1 className={cn(`font-coming-soon text-5xl font-bold md:text-8xl`)}>
                 <div>Draw ideas </div>
                <Heading classname={`text-5xl font-bold md:text-8xl`}>ship faster.</Heading>
