@@ -31,7 +31,7 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
   const gameRef = useRef<Game | null>(null);
   const [zoom, setZoom] = useState(100);
 
-  useEffect(() => {
+  useEffect(()  => {
     if (canvasRef.current) {
       const canvas = canvasRef.current;
 

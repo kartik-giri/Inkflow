@@ -14,12 +14,12 @@ const main = async () => {
             }
             if (job.key === "draw-queue") {
                 const parsedJob = JSON.parse(job.element)
-                const shapeData = typeof parsedJob.shape === "string" 
-                ? JSON.parse(parsedJob.shape) 
-                : parsedJob.shape;
+                const shapeData = typeof parsedJob.shape === "string"
+                    ? JSON.parse(parsedJob.shape)
+                    : parsedJob.shape;
                 await prisma.element.create({
                     data: {
-                        shape: shapeData, 
+                        shape: shapeData,
                         creator_id: Number(parsedJob.creatorId),
                         room_id: Number(parsedJob.roomId)
                     }
@@ -35,10 +35,10 @@ const main = async () => {
                     where: {
                         room_id: Number(parsedJob.roomId),
                         shape: {
-                    // This targets the 'id' key inside the JSON column
-                    path: ['id'],
-                    equals: shape.id
-                }
+                            // This targets the 'id' key inside the JSON column
+                            path: ['id'],
+                            equals: shape.id
+                        }
                     }
                 })
             }
