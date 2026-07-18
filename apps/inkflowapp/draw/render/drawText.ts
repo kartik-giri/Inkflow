@@ -13,7 +13,7 @@ export const drawText = (
     
     // Handle multi-line text
     const lines = text.split('\n');
-    const lineHeight = 28; // Adjust based on font size
+    const lineHeight = 24; // Adjust based on font size
 
     lines.forEach((line, index) => {
         ctx.fillText(line, x, y + (index * lineHeight));

@@ -59,13 +59,13 @@ export const isPointsAtShape = (x: number, y: number, existingShapes:Shape[], ct
         }
 
         else if (shape.type === "text") {
-            ctx.font = "24px 'Coming Soon', cursive"
+            ctx.font = "24px sans-serif"
             const textWidth = ctx.measureText(shape.text).width
             if (
                 x >= shape.x &&
                 x <= shape.x + textWidth &&
-                y >= shape.y - 24 &&
-                y <= shape.y
+                y >= shape.y &&
+                y <= shape.y + 24
             ) {
                 return { shape, id:shape.id }
             }
