@@ -9,9 +9,9 @@ export const isPointsAtShape = (x: number, y: number, existingShapes:Shape[], ct
         if (shape.type === "rect") {
             if (
                 x >= shape.x &&
-                x <= shape.x + shape.width &&
+                x <= shape.x + shape.storkeWidth &&
                 y >= shape.y &&
-                y <= shape.y + shape.height
+                y <= shape.y + shape.storkeWidth
             ) {
                 return { shape, id: shape.id }
             }
@@ -60,12 +60,21 @@ export const isPointsAtShape = (x: number, y: number, existingShapes:Shape[], ct
 
         else if (shape.type === "text") {
             ctx.font = "24px sans-serif"
-            const textWidth = ctx.measureText(shape.text).width
+            const lines = shape.text.split(`\n`);
+            const height = lines.length * 24
+
+            let width = 0;
+            lines.forEach((line)=>{
+                const lineWidth = ctx.measureText(line).width;
+                if(lineWidth>width){
+                    width = lineWidth
+                }
+            })
             if (
                 x >= shape.x &&
-                x <= shape.x + textWidth &&
+                x <= shape.x + width &&
                 y >= shape.y &&
-                y <= shape.y + 24
+                y <= shape.y + height
             ) {
                 return { shape, id:shape.id }
             }
