@@ -197,13 +197,13 @@ const main = async () => {
                     return;
                 }
 
-                try{
-                    userList.forEach((user)=>{
-                        if(user.socket.readyState === WebSocket.OPEN && user.userId !== currentUser.userId){
+                try {
+                    userList.forEach((user) => {
+                        if (user.socket.readyState === WebSocket.OPEN && user.userId !== currentUser.userId) {
                             user.socket.send(
                                 JSON.stringify({
-                                    type:"erase",
-                                    id:deletedShapeId,
+                                    type: "erase",
+                                    id: deletedShapeId,
                                 })
                             )
                         }
@@ -213,12 +213,57 @@ const main = async () => {
                         "erase-queue",
                         JSON.stringify({
                             roomId,
-                            shape:JSON.stringify(deletedShape) //stringifying the object`{"id":"2232"}`
+                            shape: JSON.stringify(deletedShape) //stringifying the object`{"id":"2232"}`
                         })
                     )
-                }catch(err){
+                } catch (err) {
                     console.log(`Error occured while deleting shape ${err}`)
                     return
+                }
+            }
+
+            // {
+            //     type:"editText",
+            //     message:{
+            //         id:string,
+            //         shape:Shape,
+            //     }
+            //     roomId:number
+            // }
+            if (parsedMsg.type === "editText") {
+                const roomId = parsedMsg.roomId;
+                const msg = JSON.parse(parsedMsg.message);
+                const shapeId = msg.id;
+                const textShape = msg.shape;
+
+                const userList = users.get(roomId);
+                if (!userList || !userList.has(currentUser)) {
+                    return
+                }
+                try {
+                    userList.forEach((user) => {
+                        if (user.socket.readyState === WebSocket.OPEN && user.userId !== currentUser.userId) {
+                            user.socket.send(
+                                JSON.stringify({
+                                    type: "editText",
+                                    shape: textShape,
+                                    id: shapeId
+                                })
+                            )
+                        }
+                    })
+
+                    await redisClient.lPush(
+                        "editText-queue",
+                        JSON.stringify({
+                            roomId,
+                            textShape: textShape,
+                            shapeId: shapeId
+                        })
+                    )
+                } catch (e) {
+                    console.log(`Error occured while editting shape ${e}`)
+                    return e
                 }
             }
         });

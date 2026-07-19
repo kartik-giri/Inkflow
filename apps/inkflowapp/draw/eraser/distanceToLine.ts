@@ -1,7 +1,7 @@
 export const distanceToLine = (
-    px: number, py: number,
-    x1: number, y1: number,
-    x2: number, y2: number
+    px: number, py: number, //World X coords
+    x1: number, y1: number, //Shape start x, y
+    x2: number, y2: number //SHape end x, y
 ) => {
     const dx = x2 - x1
     const dy = y2 - y1
