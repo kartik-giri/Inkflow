@@ -9,6 +9,7 @@ export enum Shapes {
     move,
     eraser,
     Hand,
+    Pointer
 }
 
 export enum StorkeColor {

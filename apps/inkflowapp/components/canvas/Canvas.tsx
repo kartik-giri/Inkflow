@@ -9,16 +9,23 @@ import {
   Diamond,
   Dot,
   Eraser,
+  HamburgerIcon,
   Hand,
+  Menu,
   Minus,
+  MousePointer,
   Pencil,
   RectangleHorizontal,
+  Share,
   Square,
   TextInitial,
 } from "lucide-react";
 import { Card } from "../ui/cardWrapper";
 import { Game } from "@/draw/Game";
 import { Shapes, StorkeColor, StorkeWidth } from "@/types/canvas";
+import { Button } from "../ui/button";
+import { MenuCard } from "./MenuCard";
+import { ShareCard } from "./ShareCard";
 
 const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
   const { width, height } = useWindowSize();
@@ -30,8 +37,10 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<Game | null>(null);
   const [zoom, setZoom] = useState(100);
+  const [clickedMenu, setclickedMenu] = useState<boolean>(false);
+  const [clickedShare, setClickedShare] = useState<boolean>(false);
 
-  useEffect(()  => {
+  useEffect(() => {
     if (canvasRef.current) {
       const canvas = canvasRef.current;
 
@@ -42,7 +51,7 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
         selectedShape,
         storkeColor,
         storkeWidth,
-        setZoom
+        setZoom,
       );
       if (!gameObj) {
         return;
@@ -85,15 +94,48 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
         className={cn(
           `bg-white  bg-[radial-gradient(#1e1e1e15_1px,transparent_2px)] [background-size:24px_24px]`,
         )}
-        style={{ width: width, height: height, cursor:selectedShape === Shapes.eraser?"crosshair":"default" }}
+        style={{
+          width: width,
+          height: height,
+          cursor: selectedShape === Shapes.eraser ? "crosshair" : "default",
+        }}
         width={width}
         height={height}
         ref={canvasRef}
       ></canvas>
 
-      {/* Shapes menu */}
+      {/* Canvas Navbar*/}
       <div className={cn(`flex justify-center`)}>
-        <Card className=" absolute top-4 p-1 rounded-md w-fit flex flex-wrap gap-1 ">
+        {/* Menu Button */}
+        <div className=" hidden sm:block absolute top-4 left-4 ">
+          <div
+            onClick={() => {
+              setclickedMenu((state)=>{
+                return !state
+              });
+            }}
+            className="border-2 p-3 rounded-lg cursor-pointer hover:bg-orange-50"
+          >
+            <Menu />
+          </div>
+        </div>
+        {/* Menu Bar */}
+        {
+            clickedMenu &&
+        <div className="absolute top-20 left-4 z-50">
+            <MenuCard />
+        </div>
+        }
+        <Card className=" absolute top-4 p-1 rounded-md w-fit flex flex-wrap gap-0 ">
+          <IconButton
+            className="p-2"
+            onClick={() => {
+              setSelectedShape(Shapes.Pointer);
+            }}
+            activeShape={selectedShape === Shapes.Pointer}
+            icon={<MousePointer />}
+          ></IconButton>
+
           <IconButton
             className="p-2"
             onClick={() => {
@@ -172,137 +214,147 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
             icon={<Hand />}
           ></IconButton>
         </Card>
+        {/* Share Button */}
+        <div className=" hidden sm:block absolute top-4 right-4">
+          <div onClick={()=>{
+            setClickedShare(true)
+          }}>
+          <Card className="p-3 cursor-pointer rounded-lg  hover:bg-orange-50">
+            <Share />
+          </Card>
+          </div>
+        </div>
       </div>
 
       {/* Colors menu */}
-      {selectedShape !== Shapes.eraser && 
-      <div className={cn(`absolute top-40 left-4`)}>
-        <Card className="p-0.5 flex flex-col rounded-md pr-3 py-2 ">
-          <IconButton
-            onClick={() => {
-              setStorkeColor(StorkeColor.black);
-            }}
-            activeStorke={storkeColor === StorkeColor.black}
-            icon={<Square color="black" fill="black" />}
-            className="my-1"
-          />
-          <IconButton
-            onClick={() => {
-              setStorkeColor(StorkeColor.orange);
-            }}
-            activeStorke={storkeColor === StorkeColor.orange}
-            icon={<Square color="#E35336" fill="#E35336" />}
-            className="my-1"
-          />
-          <IconButton
-            onClick={() => {
-              setStorkeColor(StorkeColor.indigo);
-            }}
-            activeStorke={storkeColor === StorkeColor.indigo}
-            icon={<Square color="#6a64db" fill="#6a64db" />}
-            className="my-1"
-          />
-          <IconButton
-            onClick={() => {
-              setStorkeColor(StorkeColor.yellow);
-            }}
-            activeStorke={storkeColor === StorkeColor.yellow}
-            icon={<Square color="#f08c02" fill="#f08c02" />}
-            className="my-1"
-          />
-          <IconButton
-            onClick={() => {
-              setStorkeColor(StorkeColor.green);
-            }}
-            activeStorke={storkeColor === StorkeColor.green}
-            icon={<Square color="#2d9e44" fill="#2d9e44" />}
-            className="my-1"
-          />
-          <IconButton
-            onClick={() => {
-              setStorkeColor(StorkeColor.blue);
-            }}
-            activeStorke={storkeColor === StorkeColor.blue}
-            icon={<Square color="#1a72c2" fill="#1a72c2" />}
-            className="my-1"
-          />
-        </Card>
-      </div>
-}
+      {selectedShape !== Shapes.eraser && clickedMenu === false && (
+        <div className={cn(`absolute top-40 left-4`)}>
+          <Card className="p-0.5 flex flex-col rounded-md pr-3 py-2 ">
+            <IconButton
+              onClick={() => {
+                setStorkeColor(StorkeColor.black);
+              }}
+              activeStorke={storkeColor === StorkeColor.black}
+              icon={<Square color="black" fill="black" />}
+              className="my-1"
+            />
+            <IconButton
+              onClick={() => {
+                setStorkeColor(StorkeColor.orange);
+              }}
+              activeStorke={storkeColor === StorkeColor.orange}
+              icon={<Square color="#E35336" fill="#E35336" />}
+              className="my-1"
+            />
+            <IconButton
+              onClick={() => {
+                setStorkeColor(StorkeColor.indigo);
+              }}
+              activeStorke={storkeColor === StorkeColor.indigo}
+              icon={<Square color="#6a64db" fill="#6a64db" />}
+              className="my-1"
+            />
+            <IconButton
+              onClick={() => {
+                setStorkeColor(StorkeColor.yellow);
+              }}
+              activeStorke={storkeColor === StorkeColor.yellow}
+              icon={<Square color="#f08c02" fill="#f08c02" />}
+              className="my-1"
+            />
+            <IconButton
+              onClick={() => {
+                setStorkeColor(StorkeColor.green);
+              }}
+              activeStorke={storkeColor === StorkeColor.green}
+              icon={<Square color="#2d9e44" fill="#2d9e44" />}
+              className="my-1"
+            />
+            <IconButton
+              onClick={() => {
+                setStorkeColor(StorkeColor.blue);
+              }}
+              activeStorke={storkeColor === StorkeColor.blue}
+              icon={<Square color="#1a72c2" fill="#1a72c2" />}
+              className="my-1"
+            />
+          </Card>
+        </div>
+      )}
 
       {/* Storke width menu */}
-      {selectedShape !== Shapes.eraser &&
-      <div className={cn(`absolute top-97 left-4`)}>
-        <Card className="p-0.5 flex flex-col items-center rounded-md pr-3 py-2 ">
-          <IconButton
-            onClick={() => {
-              setStorkeWidth(StorkeWidth.mini);
-            }}
-            activeStorke={storkeWidth === StorkeWidth.mini}
-            icon={
-              <div
-                className={cn(
-                  "w-6 h-6 flex items-center justify-center border rounded-md overflow-hidden",
-                )}
-              >
-                <Dot className={cn("scale-[1]")} />
-              </div>
-            }
-            className="my-1"
-          />
-          <IconButton
-            onClick={() => {
-              setStorkeWidth(StorkeWidth.small);
-            }}
-            activeStorke={storkeWidth === StorkeWidth.small}
-            icon={
-              <div
-                className={cn(
-                  "w-6 h-6 flex items-center justify-center border rounded-md overflow-hidden",
-                )}
-              >
-                <Dot className={cn("scale-[2]")} /> {/* mini */}
-              </div>
-            }
-            className="my-1"
-          />
+      {selectedShape !== Shapes.eraser && clickedMenu === false && (
+        <div className={cn(`absolute top-97 left-4`)}>
+          <Card className="p-0.5 flex flex-col items-center rounded-md pr-3 py-2 ">
+            <IconButton
+              onClick={() => {
+                setStorkeWidth(StorkeWidth.mini);
+              }}
+              activeStorke={storkeWidth === StorkeWidth.mini}
+              icon={
+                <div
+                  className={cn(
+                    "w-6 h-6 flex items-center justify-center border rounded-md overflow-hidden",
+                  )}
+                >
+                  <Dot className={cn("scale-[1]")} />
+                </div>
+              }
+              className="my-1"
+            />
+            <IconButton
+              onClick={() => {
+                setStorkeWidth(StorkeWidth.small);
+              }}
+              activeStorke={storkeWidth === StorkeWidth.small}
+              icon={
+                <div
+                  className={cn(
+                    "w-6 h-6 flex items-center justify-center border rounded-md overflow-hidden",
+                  )}
+                >
+                  <Dot className={cn("scale-[2]")} /> {/* mini */}
+                </div>
+              }
+              className="my-1"
+            />
 
-          <IconButton
-            onClick={() => {
-              setStorkeWidth(StorkeWidth.large);
-            }}
-            activeStorke={storkeWidth === StorkeWidth.large}
-            icon={
-              <div
-                className={cn(
-                  "w-6 h-6 flex items-center justify-center border rounded-md overflow-hidden",
-                )}
-              >
-                <Dot className={cn("scale-[3]")} />
-              </div>
-            }
-            className={cn`my-1 ${selectedShape === Shapes.Arrow ? "hidden" : ""}`}
-          />
+            <IconButton
+              onClick={() => {
+                setStorkeWidth(StorkeWidth.large);
+              }}
+              activeStorke={storkeWidth === StorkeWidth.large}
+              icon={
+                <div
+                  className={cn(
+                    "w-6 h-6 flex items-center justify-center border rounded-md overflow-hidden",
+                  )}
+                >
+                  <Dot className={cn("scale-[3]")} />
+                </div>
+              }
+              className={cn`my-1 ${selectedShape === Shapes.Arrow ? "hidden" : ""}`}
+            />
 
-          <IconButton
-            onClick={() => {
-              setStorkeWidth(StorkeWidth.xLarge);
-            }}
-            activeStorke={storkeWidth === StorkeWidth.xLarge}
-            icon={
-              <div
-                className={cn(
-                  "w-6 h-6 flex items-center justify-center border rounded-md overflow-hidden",
-                )}
-              >
-                <Dot className={cn("scale-[4]")} />
-              </div>
-            }
-            className={cn`my-1 ${selectedShape === Shapes.Arrow ? "hidden" : ""}`}
-          />
-        </Card>
-      </div>
-      }
+            <IconButton
+              onClick={() => {
+                setStorkeWidth(StorkeWidth.xLarge);
+              }}
+              activeStorke={storkeWidth === StorkeWidth.xLarge}
+              icon={
+                <div
+                  className={cn(
+                    "w-6 h-6 flex items-center justify-center border rounded-md overflow-hidden",
+                  )}
+                >
+                  <Dot className={cn("scale-[4]")} />
+                </div>
+              }
+              className={cn`my-1 ${selectedShape === Shapes.Arrow ? "hidden" : ""}`}
+            />
+          </Card>
+        </div>
+      )}
 
       <div
         style={{
@@ -371,6 +423,10 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
         >
           +
         </button>
+      </div>
+
+      <div className="fixed top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50">
+        <ShareCard/>
       </div>
     </section>
   );
