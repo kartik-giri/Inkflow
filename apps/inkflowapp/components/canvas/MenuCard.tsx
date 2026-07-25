@@ -21,7 +21,7 @@ export const MenuCard = ()=>{
                 <div>
                 {menuList.map((item)=>{
                     return <div className="py-3 pl-6 w-45" key={item.label}>
-                        <Link  href={item.href} target="_blank">
+                        <Link  href={item.href} >
                            <div className="flex gap-2 mr-4 items-center cursor-pointer py-2 font-medium text-[#1e1e1e] hover:text-[#E35336] border-b border-gray-100 transition-colors">
                             <item.icon className="size-5"/> {item.label}
                            </div>

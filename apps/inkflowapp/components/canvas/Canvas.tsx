@@ -40,6 +40,9 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
   const [clickedMenu, setclickedMenu] = useState<boolean>(false);
   const [clickedShare, setClickedShare] = useState<boolean>(false);
 
+  const menuRef = useRef<HTMLDivElement>(null);
+  const shareRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (canvasRef.current) {
       const canvas = canvasRef.current;
@@ -88,6 +91,23 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
     }
   }, [storkeColor, storkeWidth, selectedShape]);
 
+
+useEffect(()=>{
+    const handleClickOutside = (e:MouseEvent)=>{
+        if(clickedMenu && menuRef.current && !menuRef.current.contains(e.target as Node)){
+            setclickedMenu(false);
+        }
+        if(clickedShare && shareRef.current && !shareRef.current.contains(e.target as Node)){
+            setClickedShare(false)
+        }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return ()=>{
+        document.removeEventListener("mousedown", handleClickOutside)
+    }
+},[clickedMenu, clickedShare])
+
   return (
     <section className={cn(`relative`)}>
       <canvas
@@ -106,26 +126,26 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
 
       {/* Canvas Navbar*/}
       <div className={cn(`flex justify-center`)}>
-        {/* Menu Button */}
-        <div className=" hidden sm:block absolute top-4 left-4 ">
+        {/* Menu Button & Menu Bar */}
+        <div ref={menuRef} className=" hidden sm:block absolute top-4 left-4 ">
           <div
             onClick={() => {
-              setclickedMenu((state)=>{
-                return !state
+              setclickedMenu((state) => {
+                return !state;
               });
             }}
             className="border-2 p-3 rounded-lg cursor-pointer hover:bg-orange-50"
           >
             <Menu />
           </div>
+
+          {/* Menu Bar */}
+          {clickedMenu && (
+            <div className="absolute top-20 left-4 z-50">
+              <MenuCard />
+            </div>
+          )}
         </div>
-        {/* Menu Bar */}
-        {
-            clickedMenu &&
-        <div className="absolute top-20 left-4 z-50">
-            <MenuCard />
-        </div>
-        }
         <Card className=" absolute top-4 p-1 rounded-md w-fit flex flex-wrap gap-0 ">
           <IconButton
             className="p-2"
@@ -214,15 +234,25 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
             icon={<Hand />}
           ></IconButton>
         </Card>
-        {/* Share Button */}
-        <div className=" hidden sm:block absolute top-4 right-4">
-          <div onClick={()=>{
-            setClickedShare(true)
-          }}>
-          <Card className="p-3 cursor-pointer rounded-lg  hover:bg-orange-50">
-            <Share />
-          </Card>
+        {/* Share Button  $ share card */}
+        <div ref={shareRef} className=" hidden sm:block absolute top-4 right-4">
+          <div
+            onClick={() => {
+              setClickedShare((state) => {
+                return !state;
+              });
+            }}
+          >
+            <Card className="p-3 cursor-pointer rounded-lg  hover:bg-orange-50">
+              <Share />
+            </Card>
           </div>
+
+          {clickedShare && (
+            <div className="fixed top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50">
+              <ShareCard />
+            </div>
+          )}
         </div>
       </div>
 
@@ -423,10 +453,6 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
         >
           +
         </button>
-      </div>
-
-      <div className="fixed top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50">
-        <ShareCard/>
       </div>
     </section>
   );
