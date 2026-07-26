@@ -55,6 +55,7 @@ const Canvas = ({ roomId, socket }: { roomId: number; socket: WebSocket }) => {
         storkeColor,
         storkeWidth,
         setZoom,
+        setSelectedShape
       );
       if (!gameObj) {
         return;

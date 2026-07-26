@@ -473,3 +473,8 @@ This is the most important design decision in the whole function — using the r
 ## The Next.js Best Practice
 In Next.js, you should always use <Link> for navigating between pages.
 You should only use router.push() for programmatic navigation—like redirecting a user after they submit a login form or finish an API call.
+
+## Means ...obj copies by reference if the value is object or array which makes the original values get changes. when we edits the copied value.
+
+## find() does not create a copy.
+It returns a reference to the object stored in the array.

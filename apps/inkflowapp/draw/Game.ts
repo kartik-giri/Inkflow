@@ -48,6 +48,7 @@ export class Game {
     private currentPencilPoints: Points[] = [];
     private dpr = window.devicePixelRatio || 1;
     private setZoomValue!: (zoom: number) => void;
+    private setSelectedShapeState!: (shape: Shapes) => void
 
     //Variables for panning and zooming
     private panX: number = 0;
@@ -63,6 +64,14 @@ export class Game {
     private lastX: number = 0;
     private lastY: number = 0;
 
+    // Vars for dragging, resizing and moving shape.
+    private selectedShapeId: string | null = null;
+    private isDragging: boolean = false;
+    private isResizing: string | null = null; // holds handle name e.g., 'tl', 'br', etc.
+    private isRotating: boolean = false;
+    private dragStartMouse = { x: 0, y: 0 };
+    private initialShapeState: Shape | null = null; //use to take snapchot of clicked shape
+
     constructor(
         canvas: HTMLCanvasElement,
         roomId: number,
@@ -71,11 +80,13 @@ export class Game {
         storkeColor: StorkeColor,
         storkeWidth: StorkeWidth,
         setZoom: (zoom: number) => void,
+        setSlectedShapeState: (shape: Shapes) => void
     ) {
         this.canvas = canvas;
         this.roomId = roomId;
         this.socket = socket;
         this.setZoomValue = setZoom;
+        this.setSelectedShapeState = setSlectedShapeState; //Setting callback function
 
         this.selectedShape = selectedShape;
         this.storkeWidth = storkeWidth;
@@ -170,6 +181,21 @@ export class Game {
         this.startY = coords.y;
         this.lastX = coords.x;
         this.lastY = coords.y;
+
+        //Checking if mouse clicked is done on existing shapes.
+        if (this.selectedShape === Shapes.Pointer) {
+            const clickedShape = isPointsAtShape(coords.x, coords.y, this.existingShapes, this.ctx);
+            if (clickedShape) {
+                this.selectedShapeId = clickedShape.id
+                this.isDragging = true;
+                this.dragStartMouse = { x: coords.x, y: coords.y };
+                this.initialShapeState = JSON.parse(JSON.stringify(clickedShape.shape)); //Copy by value
+                return
+            }
+            this.selectedShapeId= null;
+            this.isDragging= false;
+            this.initialShapeState= null
+        }
 
         if (this.selectedShape === Shapes.pencil) {
             this.currentPencilPoints.push({
@@ -309,6 +335,11 @@ export class Game {
                 roomId: this.roomId,
             }),
         );
+
+        if (this.selectedShape !== Shapes.Pointer) {
+            this.setSelectedShapeState(Shapes.Pointer)
+            return
+        }
     };
 
     mouseMoveHandler = (e: MouseEvent) => {
@@ -333,6 +364,36 @@ export class Game {
         const coods = this.getMouseCoordinates(e.offsetX, e.offsetY);
         const width = coods.x - this.startX;
         const height = coods.y - this.startY;
+
+        if (this.selectedShapeId && this.isDragging && this.selectedShape === Shapes.Pointer) {
+            const initialShapeState = this.initialShapeState;
+            const dx = coods.x - this.dragStartMouse.x;
+            const dy = coods.y - this.dragStartMouse.y;
+            const shape = this.existingShapes.find((shape) => {
+                return shape.id === this.selectedShapeId
+            })
+
+            if (shape && initialShapeState) {
+                if ("x" in shape && "x" in initialShapeState && "y" in shape && "y" in initialShapeState) {
+                    shape.x = initialShapeState.x + dx;
+                    shape.y = initialShapeState.y + dy
+                }
+                if ("startX" in shape && "startX" in initialShapeState && "startY" in shape && "startY" in initialShapeState) {
+                    shape.startX = initialShapeState.startX + dx;
+                    shape.startY = initialShapeState.startY + dy;
+                    shape.endX = initialShapeState.endX + dx;
+                    shape.endY = initialShapeState.endY + dy
+                }
+                if ("points" in shape && "points" in initialShapeState) {
+                    shape.points = initialShapeState.points.map((points: Points) => ({
+                        x: points.x + dx,
+                        y: points.y + dy
+                    }))
+                }
+            }
+            this.render();
+            return
+        }
 
         if (this.selectedShape === Shapes.eraser) {
             const result = isPointsAtShape(
@@ -429,9 +490,9 @@ export class Game {
                 parsedShape.type !== "line" &&
                 parsedShape.type !== "arrow" &&
                 parsedShape.type !== "text"
-            ){
+            ) {
                 return;
-            }   
+            }
 
             this.existingShapes.push(parsedShape);
             this.render();
@@ -440,8 +501,8 @@ export class Game {
                 return shape.id !== message.id;
             });
             this.render();
-        }else if(message.type === "editText"){
-            const shapeIndex = this.existingShapes.findIndex((shape)=>{ //returns the index of the element which met the defined condition 
+        } else if (message.type === "editText") {
+            const shapeIndex = this.existingShapes.findIndex((shape) => { //returns the index of the element which met the defined condition 
                 return shape.id === message.id
             })
             this.existingShapes[shapeIndex] = message.shape;
@@ -525,8 +586,8 @@ export class Game {
 
         if (existingShape) {
             textArea.value = existingShape.text;
-            screenX = existingShape.x * this.scale + this.panX ;
-            screenY = existingShape.y * this.scale + this.panY ;
+            screenX = existingShape.x * this.scale + this.panX;
+            screenY = existingShape.y * this.scale + this.panY;
 
             // UX Trick: Temporarily remove the shape from canvas while editing
             // so it doesn't look thick/doubled up behind the textarea
@@ -544,7 +605,7 @@ export class Game {
         textArea.style.border = "1px dashed #ccc";
         textArea.style.outline = "none";
         textArea.style.background = "transparent";
-        textArea.style.color = colorMap[this.storkeColor];
+        textArea.style.color = `${existingShape ? existingShape.storkeColor : colorMap[this.storkeColor]}`
         textArea.style.font = "24px sans-serif";
         textArea.style.zIndex = "1000";
         textArea.style.resize = "none";
@@ -569,35 +630,19 @@ export class Game {
                 if (existingShape) {
                     // --- UPDATE EXISTING ---
                     existingShape.text = text;
-                    existingShape.storkeColor = colorMap[this.storkeColor]; // Update color to current
+                    // existingShape.storkeColor = colorMap[this.storkeColor]; // Update color to current
                     this.existingShapes.push(existingShape);
 
                     this.socket.send(
                         JSON.stringify({
-                            type:"editText",
-                            message:JSON.stringify({
-                                id:existingShape.id,
+                            type: "editText",
+                            message: JSON.stringify({
+                                id: existingShape.id,
                                 shape: existingShape
                             }),
                             roomId: this.roomId
                         })
                     )
-
-                    // // Broadcast the update (Erase old, draw new is the safest way to sync state)
-                    // this.socket.send(
-                    //     JSON.stringify({
-                    //         type: "erase",
-                    //         message: JSON.stringify({ id: existingShape.id, shape: existingShape }),
-                    //         roomId: this.roomId,
-                    //     }),
-                    // );
-                    // this.socket.send(
-                    //     JSON.stringify({
-                    //         type: "draw",
-                    //         message: JSON.stringify(existingShape),
-                    //         roomId: this.roomId,
-                    //     }),
-                    // );
                 } else {
                     // --- CREATE NEW ---
                     const newShape: Shape = {
