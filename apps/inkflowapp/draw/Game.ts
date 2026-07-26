@@ -121,10 +121,83 @@ export class Game {
         );
 
         this.existingShapes.forEach((shape) => {
+            this.ctx.save();
+
+            const angle = shape.angle || 0;
+            if (angle !== 0) {
+                const box = this.getShapeBoundingBox(shape);
+                const cx = box.x + box.width / 2;
+                const cy = box.y + box.height / 2;
+                this.ctx.translate(cx, cy);
+                this.ctx.rotate(angle);
+                this.ctx.translate(-cx, -cy);
+            }
+
             this.ctx.strokeStyle = shape.storkeColor;
             this.ctx.lineWidth = shape.storkeWidth;
             renderShape(this.ctx, shape);
+
+            this.ctx.restore();
         });
+
+        if (this.selectedShapeId) {
+            const selectedShape = this.existingShapes.find((s) => s.id === this.selectedShapeId);
+            if (selectedShape) {
+                this.renderGizmo(selectedShape);
+            }
+        }
+    };
+
+    renderGizmo = (shape: Shape) => {
+        const box = this.getShapeBoundingBox(shape);
+        this.ctx.save();
+        const angle = shape.angle || 0;
+        if (angle !== 0) {
+            const cx = box.x + box.width / 2;
+            const cy = box.y + box.height / 2;
+            this.ctx.translate(cx, cy);
+            this.ctx.rotate(angle);
+            this.ctx.translate(-cx, -cy);
+        }
+
+        // Draw bounding box outline
+        this.ctx.strokeStyle = "#1a72c2";
+        this.ctx.lineWidth = 1;
+        this.ctx.setLineDash([4, 4]);
+        this.ctx.strokeRect(box.x - 4, box.y - 4, box.width + 8, box.height + 8);
+        this.ctx.setLineDash([]);
+
+        // Draw corner handles
+        const handleSize = 8;
+        const handles = [
+            { x: box.x - 4, y: box.y - 4 },
+            { x: box.x + box.width + 4 - handleSize, y: box.y - 4 },
+            { x: box.x - 4, y: box.y + box.height + 4 - handleSize },
+            { x: box.x + box.width + 4 - handleSize, y: box.y + box.height + 4 - handleSize },
+        ];
+
+        this.ctx.fillStyle = "#ffffff";
+        this.ctx.strokeStyle = "#1a72c2";
+        handles.forEach((h) => {
+            this.ctx.fillRect(h.x, h.y, handleSize, handleSize);
+            this.ctx.strokeRect(h.x, h.y, handleSize, handleSize);
+        });
+
+        // Rotation Handle stalk + node
+        const topCenterX = box.x + box.width / 2;
+        const topCenterY = box.y - 4;
+        this.ctx.beginPath();
+        this.ctx.moveTo(topCenterX, topCenterY);
+        this.ctx.lineTo(topCenterX, topCenterY - 20);
+        this.ctx.stroke();
+
+        this.ctx.beginPath();
+        this.ctx.arc(topCenterX, topCenterY - 20, 4, 0, Math.PI * 2);
+        this.ctx.fillStyle = "#ffffff";
+        this.ctx.fill();
+        this.ctx.stroke();
+
+        this.ctx.restore();
     };
 
     deleteShape = (id: string, shape: Shape) => {
@@ -166,6 +239,41 @@ export class Game {
         };
     };
 
+    getShapeBoundingBox = (shape: Shape) => {
+        if (shape.type === "rect" || shape.type === "diamond") {
+            return { x: shape.x, y: shape.y, width: shape.width || 100, height: shape.height || 40 };
+        } else if (shape.type === "text") {
+            this.ctx.font = "24px sans-serif";
+            const lines = shape.text.split('\n');
+            const lineHeight = 24; // Approximate height per line
+            const height = lines.length * lineHeight;
+
+            let width = 0;
+            lines.forEach((line: string) => {
+                const lineWdth = this.ctx.measureText(line).width;
+                if (lineWdth > width) width = lineWdth;
+            });
+            return { x: shape.x, y: shape.y, width: width, height: height }
+        }
+        else if (shape.type === "circle") {
+            return { x: shape.x, y: shape.y, width: shape.width, height: shape.height };
+        } else if (shape.type === "line" || shape.type === "arrow") {
+            const minX = Math.min(shape.startX, shape.endX);
+            const minY = Math.min(shape.startY, shape.endY);
+            return { x: minX, y: minY, width: Math.abs(shape.endX - shape.startX), height: Math.abs(shape.endY - shape.startY) };
+        } else if (shape.type === "pencil") {
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            shape.points.forEach(p => {
+                minX = Math.min(minX, p.x);
+                minY = Math.min(minY, p.y);
+                maxX = Math.max(maxX, p.x);
+                maxY = Math.max(maxY, p.y);
+            });
+            return { x: minX, y: minY, width: maxX - minX || 10, height: maxY - minY || 10 };
+        }
+        return { x: 0, y: 0, width: 0, height: 0 };
+    };
+
     mouseDownHandler = (e: MouseEvent) => {
         if (e.button === 1) {
             ((this.isPanning = true),
@@ -182,6 +290,36 @@ export class Game {
         this.lastX = coords.x;
         this.lastY = coords.y;
 
+        if (this.selectedShapeId) {
+            const shape = this.existingShapes.find((shape) => {
+                return shape.id === this.selectedShapeId
+            })
+            if (shape) {
+                const box = this.getShapeBoundingBox(shape);
+                const cx = box.x + box.width / 2;
+                const cy = box.y + box.height / 2;
+                const angle = shape.angle || 0;
+
+                // Undo the shape's rotation on the click point, so we can compare
+                // it against the handle's original (unrotated) position
+                const dx = coords.x - cx;
+                const dy = coords.y - cy;
+                const localX = cx + dx * Math.cos(-angle) - dy * Math.sin(-angle);
+                const localY = cy + dx * Math.sin(-angle) + dy * Math.cos(-angle);
+
+                const topCenterX = box.x + box.width / 2;
+                const topCenterY = box.y - 24;
+                const dist = Math.hypot(localX - topCenterX, localY - topCenterY);
+                console.log("distance to rotate handle:", dist); // <-- add this
+                if (dist <= 8) {
+                    this.isRotating = true;
+                    this.dragStartMouse = { x: coords.x, y: coords.y }
+                    console.log(`Shape is clicked for rotating`)
+                    return;
+                }
+            }
+        }
+
         //Checking if mouse clicked is done on existing shapes.
         if (this.selectedShape === Shapes.Pointer) {
             const clickedShape = isPointsAtShape(coords.x, coords.y, this.existingShapes, this.ctx);
@@ -190,11 +328,12 @@ export class Game {
                 this.isDragging = true;
                 this.dragStartMouse = { x: coords.x, y: coords.y };
                 this.initialShapeState = JSON.parse(JSON.stringify(clickedShape.shape)); //Copy by value
+                this.render();
                 return
             }
-            this.selectedShapeId= null;
-            this.isDragging= false;
-            this.initialShapeState= null
+            this.selectedShapeId = null;
+            this.isDragging = false;
+            this.initialShapeState = null
         }
 
         if (this.selectedShape === Shapes.pencil) {
@@ -229,6 +368,27 @@ export class Game {
             return;
         }
 
+        if (this.isDragging || this.isRotating) {
+            this.isDragging = false;
+            this.isRotating = false;
+            if (this.selectedShapeId) {
+                const updatedShape = this.existingShapes.find((shape) => {
+                    return shape.id === this.selectedShapeId
+                })
+                if (updatedShape) {
+                    this.socket.send(JSON.stringify({
+                        type: "editShape",
+                        message: JSON.stringify({
+                            id: this.selectedShapeId,
+                            shape: updatedShape
+                        }),
+                        roomId: this.roomId
+                    }))
+                }
+            }
+            return;
+        }
+
         if (this.selectedShape === Shapes.text) {
             return;
         }
@@ -240,6 +400,8 @@ export class Game {
 
         console.log(`width: ${width}, height: ${height}`);
         let shape: Shape | null = null;
+
+
 
         if (this.selectedShape === Shapes.rectangle) {
             //Normalization
@@ -395,6 +557,21 @@ export class Game {
             return
         }
 
+        if (this.isRotating && this.selectedShapeId) {
+            const shape = this.existingShapes.find((shape) => {
+                return shape.id === this.selectedShapeId
+            })
+            if (shape) {
+                const box = this.getShapeBoundingBox(shape);
+                const centerX = box.x + box.width / 2;
+                const centerY = box.y + box.height / 2;
+                const angle = Math.atan2(coods.y - centerY, coods.x - centerX) + Math.PI / 2;
+                shape.angle = angle;
+            }
+            this.render();
+            return;
+        }
+
         if (this.selectedShape === Shapes.eraser) {
             const result = isPointsAtShape(
                 coods.x,
@@ -501,7 +678,7 @@ export class Game {
                 return shape.id !== message.id;
             });
             this.render();
-        } else if (message.type === "editText") {
+        } else if (message.type === "editShape") {
             const shapeIndex = this.existingShapes.findIndex((shape) => { //returns the index of the element which met the defined condition 
                 return shape.id === message.id
             })
@@ -635,7 +812,7 @@ export class Game {
 
                     this.socket.send(
                         JSON.stringify({
-                            type: "editText",
+                            type: "editShape",
                             message: JSON.stringify({
                                 id: existingShape.id,
                                 shape: existingShape
@@ -678,22 +855,29 @@ export class Game {
             this.render();
         };
 
-        textArea.addEventListener("blur", submitText);
+        textArea.addEventListener("blur", () => {
+            submitText();
+            this.setSelectedShapeState(Shapes.Pointer)
+        });
         textArea.addEventListener("keydown", (keyEvent) => {
             if (keyEvent.key === "Enter" && !keyEvent.shiftKey) {
                 keyEvent.preventDefault();
                 submitText();
+                this.setSelectedShapeState(Shapes.Pointer)
             }
             if (keyEvent.key === "Escape") {
                 isSubmitted = true;
                 textArea.remove();
+                this.setSelectedShapeState(Shapes.Pointer)
 
                 // If they cancelled an edit, put the original shape back untouched
                 if (existingShape) {
                     this.existingShapes.push(existingShape);
                     this.render();
+                    this.setSelectedShapeState(Shapes.Pointer)
                 }
             }
+
         });
 
         // Auto-resize textarea as user types

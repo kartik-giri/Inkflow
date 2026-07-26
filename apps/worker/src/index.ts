@@ -7,7 +7,7 @@ const main = async () => {
     //Worker runs forever
     while (true) {
         try {
-            const job = await redisClient.brPop(["draw-queue", "erase-queue", "editText-queue"], 0) // pop is block until job is pushed in queue. popping out the job from queue, 
+            const job = await redisClient.brPop(["draw-queue", "erase-queue", "editShape-queue"], 0) // pop is block until job is pushed in queue. popping out the job from queue, 
 
             if (!job) {
                 continue
@@ -42,19 +42,19 @@ const main = async () => {
                     }
                 })
             }
-            else if(job.key === "editText-queue"){
+            else if(job.key === "editShape-queue"){
                 const parsedJob = JSON.parse(job.element);
-                const textShape = typeof parsedJob.textShape === "string"? JSON.parse(parsedJob.textShape): parsedJob.textShape;
+                const updatedShape = typeof parsedJob.updatedShape === "string"? JSON.parse(parsedJob.updatedShape): parsedJob.updatedShape;
                 await prisma.element.updateMany({
                     where:{
                         room_id:Number(parsedJob.roomId),
                         shape:{
                             path: [`id`],
-                            equals: textShape.id
+                            equals: updatedShape.id
                         }
                     },
                     data:{
-                        shape:textShape
+                        shape:updatedShape
                     }
                 })
             }

@@ -223,18 +223,18 @@ const main = async () => {
             }
 
             // {
-            //     type:"editText",
+            //     type:"editShape",
             //     message:{
             //         id:string,
             //         shape:Shape,
             //     }
             //     roomId:number
             // }
-            if (parsedMsg.type === "editText") {
+            if (parsedMsg.type === "editShape") {
                 const roomId = parsedMsg.roomId;
                 const msg = JSON.parse(parsedMsg.message);
                 const shapeId = msg.id;
-                const textShape = msg.shape;
+                const updatedShape = msg.shape;
 
                 const userList = users.get(roomId);
                 if (!userList || !userList.has(currentUser)) {
@@ -245,8 +245,8 @@ const main = async () => {
                         if (user.socket.readyState === WebSocket.OPEN && user.userId !== currentUser.userId) {
                             user.socket.send(
                                 JSON.stringify({
-                                    type: "editText",
-                                    shape: textShape,
+                                    type: "editShape",
+                                    shape: updatedShape,
                                     id: shapeId
                                 })
                             )
@@ -254,10 +254,10 @@ const main = async () => {
                     })
 
                     await redisClient.lPush(
-                        "editText-queue",
+                        "editShape-queue",
                         JSON.stringify({
                             roomId,
-                            textShape: textShape,
+                            updatedShape: updatedShape,
                             shapeId: shapeId
                         })
                     )
