@@ -72,6 +72,10 @@ export class Game {
     private dragStartMouse = { x: 0, y: 0 };
     private initialShapeState: Shape | null = null; //use to take snapchot of clicked shape
 
+    private resizeCenter = { x: 0, y: 0 };
+    private resizeAngle = 0;
+    private resizeStartLocal = { x: 0, y: 0 };
+
     constructor(
         canvas: HTMLCanvasElement,
         roomId: number,
@@ -243,9 +247,10 @@ export class Game {
         if (shape.type === "rect" || shape.type === "diamond") {
             return { x: shape.x, y: shape.y, width: shape.width || 100, height: shape.height || 40 };
         } else if (shape.type === "text") {
-            this.ctx.font = "24px sans-serif";
+            const fontSize = (shape as any).fontSize || 24; // NEW: use per-shape fontSize when present, defaulting to 24
+            this.ctx.font = `${fontSize}px sans-serif`;
             const lines = shape.text.split('\n');
-            const lineHeight = 24; // Approximate height per line
+            const lineHeight = fontSize; // Approximate height per line
             const height = lines.length * lineHeight;
 
             let width = 0;
@@ -314,10 +319,53 @@ export class Game {
                 if (dist <= 8) {
                     this.isRotating = true;
                     this.dragStartMouse = { x: coords.x, y: coords.y }
-                    console.log(`Shape is clicked for rotating`)
                     return;
+                } else if (shape.type === "line" || shape.type === "arrow") {
+                    // NEW: line/arrow resize via draggable endpoints instead of box corners
+                    const handleHit = 8;
+                    const endpoints: Record<"start" | "end", { x: number; y: number }> = {
+                        start: { x: shape.startX, y: shape.startY },
+                        end: { x: shape.endX, y: shape.endY },
+                    };
+                    for (const key of Object.keys(endpoints) as ("start" | "end")[]) {
+                        const p = endpoints[key];
+                        const d = Math.hypot(localX - p.x, localY - p.y);
+                        if (d <= handleHit) {
+                            this.isResizing = key;
+                            this.initialShapeState = JSON.parse(JSON.stringify(shape));
+                            this.resizeCenter = { x: cx, y: cy };
+                            this.resizeAngle = angle;
+                            this.resizeStartLocal = { x: localX, y: localY };
+                            return;
+                        }
+                    }
+                } else {
+                    const handleSize = 8;
+                    const handles = {
+                        tl: { x: box.x - 4, y: box.y - 4 },
+                        tr: { x: box.x + box.width + 4, y: box.y - 4 },
+                        bl: { x: box.x - 4, y: box.y + box.height + 4 },
+                        br: { x: box.x + box.width + 4, y: box.y + box.height + 4 },
+                    };
+
+                    for (const [key, h] of Object.entries(handles)) {
+                        // compare against localX/localY (rotation-corrected), not raw coords
+                        const dist2 = Math.hypot(localX - h.x, localY - h.y);
+                        if (dist2 <= handleSize) {
+                            this.isResizing = key;
+                            this.initialShapeState = JSON.parse(JSON.stringify(shape));
+                            // store the LOCAL start point + the fixed center/angle so
+                            // mousemove can redo this same conversion consistently
+                            this.resizeCenter = { x: cx, y: cy };
+                            this.resizeAngle = angle;
+                            this.resizeStartLocal = { x: localX, y: localY };
+                            return;
+                        }
+                    }
                 }
             }
+
+
         }
 
         //Checking if mouse clicked is done on existing shapes.
@@ -368,9 +416,11 @@ export class Game {
             return;
         }
 
-        if (this.isDragging || this.isRotating) {
+        if (this.isDragging || this.isRotating || this.isResizing) {
             this.isDragging = false;
             this.isRotating = false;
+            this.isResizing = null;
+            this.clicked = false;
             if (this.selectedShapeId) {
                 const updatedShape = this.existingShapes.find((shape) => {
                     return shape.id === this.selectedShapeId
@@ -397,7 +447,9 @@ export class Game {
         const coords = this.getMouseCoordinates(e.offsetX, e.offsetY);
         const width = coords.x - this.startX;
         const height = coords.y - this.startY;
-
+        if(coords.x === this.startX && coords.y == this.startY){
+            return
+        }
         console.log(`width: ${width}, height: ${height}`);
         let shape: Shape | null = null;
 
@@ -555,6 +607,133 @@ export class Game {
             }
             this.render();
             return
+        }
+
+        // NEW: line/arrow endpoint resize — pin the dragged endpoint straight to the (rotation-corrected) mouse position
+        if ((this.isResizing === "start" || this.isResizing === "end") && this.selectedShapeId) {
+            const shape = this.existingShapes.find((s) => s.id === this.selectedShapeId);
+            if (shape && (shape.type === "line" || shape.type === "arrow")) {
+                const dxRaw = coods.x - this.resizeCenter.x;
+                const dyRaw = coods.y - this.resizeCenter.y;
+                const localX = this.resizeCenter.x + dxRaw * Math.cos(-this.resizeAngle) - dyRaw * Math.sin(-this.resizeAngle);
+                const localY = this.resizeCenter.y + dxRaw * Math.sin(-this.resizeAngle) + dyRaw * Math.cos(-this.resizeAngle);
+
+                if (this.isResizing === "start") {
+                    shape.startX = localX;
+                    shape.startY = localY;
+                } else {
+                    shape.endX = localX;
+                    shape.endY = localY;
+                }
+            }
+            this.render();
+            return;
+        }
+
+        // NEW: pencil resize — scale every point relative to a fixed opposite-corner anchor
+        if (this.isResizing && this.selectedShapeId) {
+            const shape = this.existingShapes.find((s) => s.id === this.selectedShapeId);
+            const initial = this.initialShapeState;
+            if (shape && initial && shape.type === "pencil" && initial.type === "pencil") {
+                const box = this.getShapeBoundingBox(initial);
+                let anchorX = box.x, anchorY = box.y;
+                switch (this.isResizing) {
+                    case "br": anchorX = box.x; anchorY = box.y; break;
+                    case "tl": anchorX = box.x + box.width; anchorY = box.y + box.height; break;
+                    case "tr": anchorX = box.x; anchorY = box.y + box.height; break;
+                    case "bl": anchorX = box.x + box.width; anchorY = box.y; break;
+                }
+
+                const dxRaw = coods.x - this.resizeCenter.x;
+                const dyRaw = coods.y - this.resizeCenter.y;
+                const localX = this.resizeCenter.x + dxRaw * Math.cos(-this.resizeAngle) - dyRaw * Math.sin(-this.resizeAngle);
+                const localY = this.resizeCenter.y + dxRaw * Math.sin(-this.resizeAngle) + dyRaw * Math.cos(-this.resizeAngle);
+
+                const scaleX = Math.max(0.05, Math.abs(localX - anchorX) / (box.width || 1));
+                const scaleY = Math.max(0.05, Math.abs(localY - anchorY) / (box.height || 1));
+
+                shape.points = initial.points.map((p) => ({
+                    x: anchorX + (p.x - anchorX) * scaleX,
+                    y: anchorY + (p.y - anchorY) * scaleY,
+                }));
+                this.render();
+                return;
+            }
+        }
+
+        // NEW: text resize — scale fontSize based on vertical drag distance from the opposite edge
+        if (this.isResizing && this.selectedShapeId) {
+            const shape = this.existingShapes.find((s) => s.id === this.selectedShapeId);
+            const initial = this.initialShapeState;
+            if (shape && initial && shape.type === "text" && initial.type === "text") {
+                const initialFontSize = (initial as any).fontSize || 24;
+                const box = this.getShapeBoundingBox(initial);
+                let anchorY = box.y;
+                if (this.isResizing === "br" || this.isResizing === "bl") {
+                    anchorY = box.y; // dragging a bottom handle -> anchor the top edge
+                } else if (this.isResizing === "tl" || this.isResizing === "tr") {
+                    anchorY = box.y + box.height; // dragging a top handle -> anchor the bottom edge
+                }
+
+                const dxRaw = coods.x - this.resizeCenter.x;
+                const dyRaw = coods.y - this.resizeCenter.y;
+                const localY = this.resizeCenter.y + dxRaw * Math.sin(-this.resizeAngle) + dyRaw * Math.cos(-this.resizeAngle);
+
+                const scale = Math.max(0.3, Math.abs(localY - anchorY) / (box.height || 1));
+                (shape as any).fontSize = Math.max(8, initialFontSize * scale);
+                this.render();
+                return;
+            }
+        }
+
+        if (this.isResizing && this.selectedShapeId && this.selectedShape === Shapes.Pointer) {
+            const shape = this.existingShapes.find((shape) => shape.id === this.selectedShapeId);
+            const initial = this.initialShapeState;
+
+            if (shape && initial && "x" in shape && "x" in initial) {
+                // undo rotation on the current mouse point, using the SAME center/angle
+                // captured at mousedown — this keeps the pivot stable through the drag
+                const dxRaw = coods.x - this.resizeCenter.x;
+                const dyRaw = coods.y - this.resizeCenter.y;
+                const localX = this.resizeCenter.x + dxRaw * Math.cos(-this.resizeAngle) - dyRaw * Math.sin(-this.resizeAngle);
+                const localY = this.resizeCenter.y + dxRaw * Math.sin(-this.resizeAngle) + dyRaw * Math.cos(-this.resizeAngle);
+
+                const dx = localX - this.resizeStartLocal.x;
+                const dy = localY - this.resizeStartLocal.y;
+
+                switch (this.isResizing) {
+                    case "br":
+                        if ("width" in shape && "width" in initial && "height" in shape && "height" in initial) {
+                            shape.width = Math.max(10, initial.width + dx);
+                            shape.height = Math.max(10, initial.height + dy);
+                        }
+                        break;
+                    case "tl":
+                        if ("width" in shape && "width" in initial && "height" in shape && "height" in initial) {
+                            shape.x = initial.x + dx;
+                            shape.y = initial.y + dy;
+                            shape.width = Math.max(10, initial.width - dx);
+                            shape.height = Math.max(10, initial.height - dy);
+                        }
+                        break;
+                    case "tr":
+                        if ("width" in shape && "width" in initial && "height" in shape && "height" in initial) {
+                            shape.y = initial.y + dy;
+                            shape.width = Math.max(10, initial.width + dx);
+                            shape.height = Math.max(10, initial.height - dy);
+                        }
+                        break;
+                    case "bl":
+                        if ("width" in shape && "width" in initial && "height" in shape && "height" in initial) {
+                            shape.x = initial.x + dx;
+                            shape.width = Math.max(10, initial.width - dx);
+                            shape.height = Math.max(10, initial.height + dy);
+                        }
+                        break;
+                }
+            }
+            this.render();
+            return;
         }
 
         if (this.isRotating && this.selectedShapeId) {

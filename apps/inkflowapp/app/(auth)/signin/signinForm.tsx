@@ -43,7 +43,7 @@ export const SigninForm = () => {
     }
 
         return (
-            <Card>
+            <Card className=" w-100 md:w-120">
                 <form onSubmit={signinAction} className="flex flex-col gap-2">
                     <div className=" text-sm min-h-4 max-h-4 text-red-500">
                         {error}

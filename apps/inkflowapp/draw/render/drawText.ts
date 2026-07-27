@@ -4,7 +4,7 @@ export const drawText = (
     x: number, 
     y: number, 
     text: string, 
-    color: string
+    color: string,
 ) => {
     ctx.fillStyle = color;
     ctx.font = "24px sans-serif"; // Make sure this matches the textarea font
