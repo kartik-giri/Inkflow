@@ -8,6 +8,7 @@ import LinkedinIcon from "../icons/linkedin";
 const Footer = () => {
   return (
     <section
+    // id="footer"
       className={cn(`py-20 md:grid grid-cols-3 bg-[#f2ede2] px-4 xl:px-27 `)}
     >
       <div>

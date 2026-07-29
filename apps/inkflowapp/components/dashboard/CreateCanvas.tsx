@@ -14,8 +14,8 @@ const CreateCanvas = ({ setClose }: { setClose: (state: boolean) => void }) => {
   
   const createRoom = async()=>{
     setLoading(true)
-    const slug = inputRef.current!.value;
-    if(!slug){
+    const roomName = inputRef.current!.value;
+    if(!roomName){
         setLoading(false)
         return
     }
@@ -25,7 +25,10 @@ const CreateCanvas = ({ setClose }: { setClose: (state: boolean) => void }) => {
             headers:{
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({slug:slug})
+            body: JSON.stringify({
+              slug: crypto.randomUUID(),
+              roomName:roomName
+            })
         })
 
         if(!res.ok){
@@ -45,7 +48,7 @@ const CreateCanvas = ({ setClose }: { setClose: (state: boolean) => void }) => {
 
   return (
     <section className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <Card className="text-center w-10/12 md:w-4/12">
+      <Card className="text-center w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12">
         <div
           className="flex justify-end pb-5 cursor-pointer"
           onClick={() => {
@@ -55,7 +58,7 @@ const CreateCanvas = ({ setClose }: { setClose: (state: boolean) => void }) => {
           <X />
         </div>
 
-        <Heading classname="font-bold">New Canvas</Heading>
+        <Heading classname="font-bold">New WorkSpace</Heading>
 
         <input
           ref={inputRef}

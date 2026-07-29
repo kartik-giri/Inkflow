@@ -29,15 +29,17 @@ export const Navbar = () => {
       <div className={cn("max-w-7xl mx-auto px-4 h-16 flex items-center justify-between")}>
 
        <div>
+        <Link href={"#hero"}>
          <Logo/>
+        </Link>
        </div>
 
         {/* Nav links */}
         <div className={cn("hidden sm:flex items-center gap-8")}>
           {[
-            { label: "Demo Video", href: "#Demo Video" },
-            { label: "Features", href: "#Features" },
-            { label: "Connect", href: "#Connect" },
+            { label: "Demo Video", href: "#demoVideo" },
+            { label: "Features", href: "#features" },
+            { label: "Connect", href: "#connect" },
           ].map(({ label, href }) => (
             <Link
               key={label}
@@ -87,9 +89,9 @@ export const Navbar = () => {
       {mobileOpen && (
         <div className={cn("sm:hidden border-t-2 border-[#1e1e1e] bg-white px-4 pb-6 flex flex-col gap-1")}>
           {[
-            { label: "Demo Video", href: "#Demo Video" },
-            { label: "Features", href: "#Features" },
-            { label: "Connect", href: "#Connect" },
+            { label: "Demo Video", href: "#demoVideo" },
+            { label: "Features", href: "#features" },
+            { label: "Connect", href: "#connect" },
           ].map(({ label, href }) => (
             <Link
               key={label}

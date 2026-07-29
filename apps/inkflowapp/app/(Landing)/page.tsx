@@ -20,9 +20,17 @@ const Landing = async()=>{
     }
     return (
         <section>
-            <HeroSection/>
-            <Demo/>
-            <Features/>
+            <section id="hero">
+               <HeroSection/> 
+            </section>
+           
+            <section id="demoVideo">
+               <Demo/>
+            </section>
+           
+           <section id="features">
+             <Features/>
+           </section>
         </section>
     )
 }

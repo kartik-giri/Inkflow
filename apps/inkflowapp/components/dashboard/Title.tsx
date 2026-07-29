@@ -23,7 +23,7 @@ const Title = ({name, setOpen}:{name:string, setOpen:(state:boolean)=>void})=>{
             </div> */}
 
             <h1>
-                <Heading classname={cn(`font-coming-soon text-4xl font-bold mt-3`)} >{formatedName} Canvases</Heading>
+                <Heading classname={cn(`font-coming-soon text-4xl font-bold mt-3`)} >{formatedName} WorkSpace</Heading>
             </h1>
 
             <div>

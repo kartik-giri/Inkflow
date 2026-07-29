@@ -5,6 +5,10 @@
   --font-coming-soon: var(--font-coming-soon);
 }
 
+html{
+  scroll-behavior: smooth;
+}
+
 @layer base {
   * {
     box-sizing: border-box;

@@ -25,6 +25,7 @@ model User {
 
 model Room {
   id Int @default (autoincrement()) @id
+  roomName String
   slug String @unique
   adminId Int 
   admin  User @relation(fields: [adminId], references: [id], onDelete: Cascade)

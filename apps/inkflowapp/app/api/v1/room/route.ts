@@ -18,7 +18,7 @@ export const POST = async (req: NextRequest) => {
      try {
           const body = await req.json(); //parsing the req data.
           
-          if (!body.slug || typeof body.slug !== "string") {
+          if (!body.slug) {
                return NextResponse.json(
                     { error: "Slug is required" },
                     { status: 400 }
@@ -28,6 +28,7 @@ export const POST = async (req: NextRequest) => {
           const room = await prisma.room.create({
                data: {
                     slug: body.slug,
+                    roomName: body.roomName,
                     adminId: Number(session.user.id)
                }
           })

@@ -10,7 +10,9 @@ const LandingLayout = ({children}: Readonly<{children: ReactNode}>)=>{
             <main className={cn(`pt-16`)}>
                 {children}
             </main>
-            <Footer/>
+            <section id="connect">
+                <Footer/>
+            </section>
         </section>
     )
 }

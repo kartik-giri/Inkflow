@@ -10,6 +10,7 @@ export type Room = {
     created_at: Date;
     updated_at: Date;
     slug: string;
+    roomName: string,
     adminId: number;
 }
 

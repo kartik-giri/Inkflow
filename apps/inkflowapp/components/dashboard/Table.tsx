@@ -30,7 +30,7 @@ const Table = ({rooms}:{rooms:Room[]})=>{
                         className="border-b hover:bg-neutral-50"
                     >
                         <td className="p-4 font-medium">
-                            {room.slug}
+                            {room.roomName}
                         </td>
 
                         <td className="p-4 hidden md:table-cell">
@@ -50,7 +50,7 @@ const Table = ({rooms}:{rooms:Room[]})=>{
                             </Link>
                         </td>
                         <td>
-                            <Button  className={`bg-white text-red-700 text-sm font-semibold ${deletingId === room.id &&"bg-red-700 text-white"}`} disabled={deletingId === room.id} onclick={async()=>{
+                            <Button  className={`bg-white text-red-700 text-sm font-semibold ${deletingId === room.id &&"bg-red-700 text-white"}`} disabled={deletingId === room.id} onClick={async()=>{
                                 setDeletingId(room.id)
                                 await deleteRoom(Number(room.id))
                                 router.refresh()

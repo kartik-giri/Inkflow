@@ -11,8 +11,10 @@ const Demo = ()=>{
                 </div>
             </div>
 
-            <div className={cn(`h-screen`)}>
-                video
+            <div className={cn(`w-full h-full p-4 sm:p-20 sm:px-26`)}>
+                <video autoPlay muted loop playsInline preload="metadata" className="rounded-xl">
+                    <source src="demo.mp4" type="video/mp4"/>
+                </video>
             </div>
         </section>
     )
