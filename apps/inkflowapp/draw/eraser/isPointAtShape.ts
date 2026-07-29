@@ -33,9 +33,9 @@ const getShapeCenter = (shape: Shape, ctx: CanvasRenderingContext2D) => {
         };
     }
     if (shape.type === "text") {
-        ctx.font = "24px sans-serif";
+        ctx.font = `${shape.fontSize}px sans-serif`;
         const lines = shape.text.split("\n");
-        const height = lines.length * 24;
+        const height = lines.length * shape.fontSize!;
         let width = 0;
         lines.forEach((line) => {
             const lineWidth = ctx.measureText(line).width;
@@ -132,9 +132,9 @@ export const isPointsAtShape = (x: number, y: number, existingShapes: Shape[], c
 
         else if (shape.type === "text") {
             // Text is still treated as a bounding box as it's not a stroke-based shape
-            ctx.font = "24px sans-serif";
+            ctx.font = `${shape.fontSize}px sans-serif`;
             const lines = shape.text.split(`\n`);
-            const height = lines.length * 24;
+            const height = lines.length * shape.fontSize!;
             let width = 0;
             lines.forEach((line) => {
                 const lineWidth = ctx.measureText(line).width;

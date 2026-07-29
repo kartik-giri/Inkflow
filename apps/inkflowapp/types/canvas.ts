@@ -32,7 +32,7 @@ export type Shape =
     | {
         type: "rect";
         id: string;
-        angle?:number;
+        angle?: number;
         x: number;
         y: number;
         width: number;
@@ -43,7 +43,7 @@ export type Shape =
     | {
         type: "circle";
         id: string;
-         angle?:number;
+        angle?: number;
         x: number,
         y: number,
         width: number,
@@ -54,14 +54,14 @@ export type Shape =
     | {
         type: "pencil";
         id: string;
-         angle?:number;
+        angle?: number;
         points: Points[];
         storkeWidth: number;
         storkeColor: string;
     } | {
         type: "diamond",
         id: string;
-         angle?:number;
+        angle?: number;
         x: number,
         y: number,
         width: number,
@@ -71,7 +71,7 @@ export type Shape =
     } | {
         type: "line",
         id: string;
-         angle?:number;
+        angle?: number;
         startX: number,
         startY: number,
         endX: number,
@@ -81,7 +81,7 @@ export type Shape =
     } | {
         type: "arrow",
         id: string;
-         angle?:number;
+        angle?: number;
         startX: number,
         startY: number,
         endX: number,
@@ -91,12 +91,13 @@ export type Shape =
     } | {
         type: "text",
         id: string;
-         angle?:number;
+        angle?: number;
         x: number,
         y: number,
         text: string,
         storkeWidth: number,
         storkeColor: string,
+        fontSize?: number
     }
 
 export type Points = {

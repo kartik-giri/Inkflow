@@ -478,3 +478,6 @@ You should only use router.push() for programmatic navigation—like redirecting
 
 ## find() does not create a copy.
 It returns a reference to the object stored in the array.
+
+## Array.include(value)
+-> checks if given value exist in array or not return true or false.

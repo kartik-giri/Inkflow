@@ -28,7 +28,7 @@ export const renderShape = (ctx: CanvasRenderingContext2D, shape: Shape) => {
             drawArrow(shape.startX, shape.startY, shape.endX, shape.endY, ctx)
             break;
         case "text":
-            drawText(ctx, shape.x, shape.y, shape.text, shape.storkeColor)
+            drawText(ctx, shape.x, shape.y, shape.text, shape.storkeColor, shape.fontSize)
             break;
     }
 }

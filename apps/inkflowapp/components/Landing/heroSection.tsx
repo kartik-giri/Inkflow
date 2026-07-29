@@ -4,6 +4,8 @@ import { Button } from "../ui/button";
 import { GithubIcon } from "@/components/icons/github";
 import { redirect } from "next/navigation";
 import Heading from "../ui/heading";
+import Link from "next/link";
+
 // import Router from "next/navigation";
 
 const HeroSection = ()=>{
@@ -23,10 +25,12 @@ const HeroSection = ()=>{
             </div>
 
             <div className={cn(`flex gap-5 pt-6`)}>
-                <Button className="text-sm p-2 md:px-6 py-2">Start Drawing Free</Button>
-                <a href="https://github.com/kartik-giri/Inkflow" target="_blank">
+                <Link href={"/signup"}>
+                <Button className="text-sm p-2 md:px-6 py-2" >Start Drawing Free</Button>
+                </Link>
+                <Link href="https://github.com/kartik-giri/Inkflow" target="_blank">
                     <Button className="text-sm p-2 md:px-6 py-2">{<GithubIcon className="size-5"/>}View on Github</Button>
-                </a>
+                </Link>
                 
             </div>
             </div>

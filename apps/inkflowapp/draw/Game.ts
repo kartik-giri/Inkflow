@@ -247,7 +247,7 @@ export class Game {
         if (shape.type === "rect" || shape.type === "diamond") {
             return { x: shape.x, y: shape.y, width: shape.width || 100, height: shape.height || 40 };
         } else if (shape.type === "text") {
-            const fontSize = (shape as any).fontSize || 24; // NEW: use per-shape fontSize when present, defaulting to 24
+            const fontSize = shape.fontSize || 24; // NEW: use per-shape fontSize when present, defaulting to 24
             this.ctx.font = `${fontSize}px sans-serif`;
             const lines = shape.text.split('\n');
             const lineHeight = fontSize; // Approximate height per line
@@ -320,7 +320,7 @@ export class Game {
                     this.isRotating = true;
                     this.dragStartMouse = { x: coords.x, y: coords.y }
                     return;
-                } else if (shape.type === "line" || shape.type === "arrow") {
+                } else if (shape.type === "line" || shape.type === "arrow") { //For resizing
                     // NEW: line/arrow resize via draggable endpoints instead of box corners
                     const handleHit = 8;
                     const endpoints: Record<"start" | "end", { x: number; y: number }> = {
@@ -368,7 +368,7 @@ export class Game {
 
         }
 
-        //Checking if mouse clicked is done on existing shapes.
+        //Checking if mouse clicked is done on existing shapes. 
         if (this.selectedShape === Shapes.Pointer) {
             const clickedShape = isPointsAtShape(coords.x, coords.y, this.existingShapes, this.ctx);
             if (clickedShape) {
@@ -382,6 +382,7 @@ export class Game {
             this.selectedShapeId = null;
             this.isDragging = false;
             this.initialShapeState = null
+            this.render()
         }
 
         if (this.selectedShape === Shapes.pencil) {
@@ -447,7 +448,7 @@ export class Game {
         const coords = this.getMouseCoordinates(e.offsetX, e.offsetY);
         const width = coords.x - this.startX;
         const height = coords.y - this.startY;
-        if(coords.x === this.startX && coords.y == this.startY){
+        if (coords.x === this.startX && coords.y == this.startY) {
             return
         }
         console.log(`width: ${width}, height: ${height}`);
@@ -609,7 +610,7 @@ export class Game {
             return
         }
 
-        // NEW: line/arrow endpoint resize — pin the dragged endpoint straight to the (rotation-corrected) mouse position
+        //line/arrow endpoint resize — pin the dragged endpoint straight to the (rotation-corrected) mouse position
         if ((this.isResizing === "start" || this.isResizing === "end") && this.selectedShapeId) {
             const shape = this.existingShapes.find((s) => s.id === this.selectedShapeId);
             if (shape && (shape.type === "line" || shape.type === "arrow")) {
@@ -630,7 +631,7 @@ export class Game {
             return;
         }
 
-        // NEW: pencil resize — scale every point relative to a fixed opposite-corner anchor
+        // pencil resize — scale every point relative to a fixed opposite-corner anchor
         if (this.isResizing && this.selectedShapeId) {
             const shape = this.existingShapes.find((s) => s.id === this.selectedShapeId);
             const initial = this.initialShapeState;
@@ -661,12 +662,12 @@ export class Game {
             }
         }
 
-        // NEW: text resize — scale fontSize based on vertical drag distance from the opposite edge
+        //text resize — scale fontSize based on vertical drag distance from the opposite edge
         if (this.isResizing && this.selectedShapeId) {
             const shape = this.existingShapes.find((s) => s.id === this.selectedShapeId);
             const initial = this.initialShapeState;
             if (shape && initial && shape.type === "text" && initial.type === "text") {
-                const initialFontSize = (initial as any).fontSize || 24;
+                const initialFontSize = initial.fontSize || 24;
                 const box = this.getShapeBoundingBox(initial);
                 let anchorY = box.y;
                 if (this.isResizing === "br" || this.isResizing === "bl") {
@@ -680,7 +681,7 @@ export class Game {
                 const localY = this.resizeCenter.y + dxRaw * Math.sin(-this.resizeAngle) + dyRaw * Math.cos(-this.resizeAngle);
 
                 const scale = Math.max(0.3, Math.abs(localY - anchorY) / (box.height || 1));
-                (shape as any).fontSize = Math.max(8, initialFontSize * scale);
+                shape.fontSize = Math.max(24, initialFontSize * scale);
                 this.render();
                 return;
             }
@@ -736,6 +737,7 @@ export class Game {
             return;
         }
 
+        //Rotating
         if (this.isRotating && this.selectedShapeId) {
             const shape = this.existingShapes.find((shape) => {
                 return shape.id === this.selectedShapeId
@@ -969,6 +971,7 @@ export class Game {
         textArea.style.whiteSpace = "pre";
         textArea.style.minWidth = "50px";
         textArea.style.minHeight = "24px";
+        textArea.style.fontSize = `${existingShape? existingShape.fontSize: "24"}px`
 
         document.body.appendChild(textArea);
         setTimeout(() => textArea.focus(), 0);
@@ -1009,6 +1012,7 @@ export class Game {
                         text: text,
                         storkeColor: colorMap[this.storkeColor],
                         storkeWidth: widthMap[this.storkeWidth],
+                        fontSize:24
                     };
                     this.existingShapes.push(newShape);
 

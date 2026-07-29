@@ -118,7 +118,7 @@ useEffect(()=>{
         style={{
           width: width,
           height: height,
-          cursor: selectedShape === Shapes.eraser ? "crosshair" : "default",
+          cursor: [Shapes.rectangle, Shapes.Arrow, Shapes.circle, Shapes.Line, Shapes.diamond, Shapes.eraser].includes(selectedShape) ? "crosshair" : selectedShape === Shapes.text? "text": "default",
         }}
         width={width}
         height={height}
@@ -147,7 +147,7 @@ useEffect(()=>{
             </div>
           )}
         </div>
-        <Card className=" absolute top-4 p-1 rounded-md w-fit flex flex-wrap gap-0 ">
+        <Card className=" absolute top-4 p-1 rounded-md w-fit flex flex-wrap gap-0 md:gap-1 ">
           <IconButton
             className="p-2"
             onClick={() => {
@@ -224,15 +224,6 @@ useEffect(()=>{
             }}
             activeShape={selectedShape === Shapes.eraser}
             icon={<Eraser />}
-          ></IconButton>
-
-          <IconButton
-            className="p-2"
-            onClick={() => {
-              setSelectedShape(Shapes.Hand);
-            }}
-            activeShape={selectedShape === Shapes.Hand}
-            icon={<Hand />}
           ></IconButton>
         </Card>
         {/* Share Button  $ share card */}
