@@ -1,3 +1,5 @@
+//Enums in the typescript is used to define a set of named constants.
+// enums is used to to create the human readable way to represent the sent of named of constants.
 export enum Shapes {
     circle,
     rectangle,

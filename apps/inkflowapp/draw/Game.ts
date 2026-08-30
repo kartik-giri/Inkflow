@@ -17,8 +17,10 @@ import { renderShape } from "./render/renderShape";
 import { isPointsAtShape } from "./eraser/isPointAtShape";
 import { isPointAtText } from "./text/isPointAtText";
 
+//Plain object keys can only be written as identifiers, strings, or numbers directly — not as expressions.
+// Wrapping it in [...] tells JS/TS: "don't treat this as a literal key — evaluate this expression first, then use its result as the key."
 const colorMap: Record<StorkeColor, string> = {
-    [StorkeColor.black]: "#1e1e1e",
+    [StorkeColor.black]: "#1e1e1e", // []-> "Evaluate key and use its result as the property name."
     [StorkeColor.blue]: "#1a72c2",
     [StorkeColor.green]: "#2d9e44",
     [StorkeColor.indigo]: "#6a64db",
@@ -935,7 +937,6 @@ export class Game {
         const textArea = document.createElement("textarea");
         textArea.id = "canvas-text-input";
 
-        // --- POSITIONING ---
         // If editing, lock the textarea exactly to the existing shape's location
         // We use getBoundingClientRect() to account for where the canvas is on the screen
         const rect = this.canvas.getBoundingClientRect();
@@ -987,7 +988,7 @@ export class Game {
 
             if (text.trim().length > 0) {
                 if (existingShape) {
-                    // --- UPDATE EXISTING ---
+
                     existingShape.text = text;
                     // existingShape.storkeColor = colorMap[this.storkeColor]; // Update color to current
                     this.existingShapes.push(existingShape);
@@ -1003,7 +1004,7 @@ export class Game {
                         })
                     )
                 } else {
-                    // --- CREATE NEW ---
+                    // new text shape
                     const newShape: Shape = {
                         type: "text",
                         id: crypto.randomUUID(),

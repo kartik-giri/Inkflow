@@ -1,7 +1,6 @@
 import { WebSocketServer, WebSocket } from "ws";
 import cookie from "cookie";
 import { decode } from "next-auth/jwt";
-import { prisma } from "@repo/db";
 import getRedisClient from "@repo/redis";
 
 const jwtSecret = process.env.NEXTAUTH_SECRET;

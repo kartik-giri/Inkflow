@@ -15,7 +15,7 @@ const DashNavBar = ({ email, name }: { email: string; name: string }) => {
       </div>
 
       <div className={cn(`flex gap-3`)}>
-        <div>
+        <div className="pr-9">
           <Button
             onClick={() => {
               signOut({ callbackUrl: "/" });
@@ -24,10 +24,11 @@ const DashNavBar = ({ email, name }: { email: string; name: string }) => {
             Log out
           </Button>
         </div>
-
+        <div className="">
         <Card className="w-10 h-10 p-0 rounded-full flex items-center justify-center text-2xl bg-[#fddf45]">
           {avatar}
         </Card>
+        </div>
 
       </div>
     
