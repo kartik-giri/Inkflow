@@ -2,9 +2,9 @@ FROM oven/bun:1.4-slim AS builder
 
 WORKDIR /app
 
-ARG DATABASE_URL
-ARG NEXTAUTH_SECRET
-ARG NEXTAUTH_URL
+# ARG DATABASE_URL
+# ARG NEXTAUTH_SECRET
+# ARG NEXTAUTH_URL
 
 COPY ./package.json ./package.json
 COPY ./bun.lock ./bun.lock
@@ -28,7 +28,7 @@ COPY ./apps/inkflowapp ./apps/inkflowapp
 
 RUN cd packages/db && bun prisma generate
 
-RUN DATABASE_URL=${DATABASE_URL} NEXTAUTH_SECRET=${NEXTAUTH_SECRET} NEXTAUTH_URL=${NEXTAUTH_URL} bun run build
+RUN --mount=type=secret,id=DATABASE_URL,env=DATABASE_URL --mount=type=secret,id=NEXTAUTH_SECRET,env=NEXTAUTH_SECRET --mount=type=secret,id=NEXTAUTH_URL,env=NEXTAUTH_URL bun run build
 
 EXPOSE 3000
 

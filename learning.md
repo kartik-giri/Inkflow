@@ -481,3 +481,14 @@ It returns a reference to the object stored in the array.
 
 ## Array.include(value)
 -> checks if given value exist in array or not return true or false.
+
+docker build \
+  -t kartikgiri/inkflow-app \
+  -f ./docker/app.Dockerfile \
+  --build-arg DATABASE_URL="your-real-database-url" \
+  --build-arg NEXTAUTH_SECRET="your-real-secret" \
+  --build-arg NEXTAUTH_URL="https://yourdomain.com" \
+  .
+
+## args → available while building the image.
+## environment → available while running the container.
