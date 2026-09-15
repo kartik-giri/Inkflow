@@ -61,8 +61,8 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
-          key: ${{secrets.VM_PRIVATE_KEY}}
-          port: 22s
+          key: ${{ secrets.VM_PRIVATE_KEY }}
+          port: 22
           source: "compose.prod.yml"
           target: "/home/ubuntu/inkflow"
 
