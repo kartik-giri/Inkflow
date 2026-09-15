@@ -1,0 +1,41 @@
+services:
+  migrate:
+    image: kartikgiri/inkflow-migration:${IMAGE_TAG}
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+
+  inkflow-app:
+    image: kartikgiri/inkflow-app:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      NEXTAUTH_URL: ${NEXTAUTH_URL}
+    ports:
+      - "3000:3000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  websocket:
+    image: kartikgiri/inkflow-websocket:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      REDIS_URL: ${REDIS_URL}
+    ports:
+      - "8080:8080"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  worker:
+    image: kartikgiri/inkflow-worker:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully

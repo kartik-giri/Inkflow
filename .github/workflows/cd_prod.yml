@@ -71,7 +71,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
-          key: ${{secrets.VM_PRIVATE_KEY}}
+          key: ${{ secrets.VM_PRIVATE_KEY }}
           port: 22
           script: |
             cd /home/ubuntu/inkflow
