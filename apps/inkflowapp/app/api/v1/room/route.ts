@@ -18,9 +18,9 @@ export const POST = async (req: NextRequest) => {
      try {
           const body = await req.json(); //parsing the req data.
           
-          if (!body.slug) {
+          if (!body.roomName) {
                return NextResponse.json(
-                    { error: "Slug is required" },
+                    { error: "roomName is required" },
                     { status: 400 }
                );
           }
