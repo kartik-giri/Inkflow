@@ -10,8 +10,9 @@ const DashboardPage = async()=>{
     if(!session){
         redirect("/")
     }
-
-    const rooms = await prisma.room.findMany({
+    let rooms: any[]= []; 
+    try{
+    rooms = await prisma.room.findMany({
         where:{
             adminId: Number(session.user.id)
         },
@@ -19,6 +20,9 @@ const DashboardPage = async()=>{
             updated_at:"desc"
         }
         })
+    }catch(e){
+        console.log("Error while fetching rooms. NO rooms")
+    }
 
     return (
         <section>
