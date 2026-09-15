@@ -496,7 +496,7 @@ docker build \
 ## turbo prune app name --docker
 - creates the mini monorepo with all the source code and packages needed to run the certain application.
 - it spits out out/json folder in which all the package.json files are for all the apps and packages.
-- And out/full folder it contains all the source code for application and packages.
+- And out/full f older it contains all the source code for application and packages.
 
 ## The << 'EOF' means:
 "Keep reading lines until you reach EOF."
