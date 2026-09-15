@@ -4,9 +4,102 @@ services:
     environment:
       POSTGRES_PASSWORD: mysecretpassword
     ports:
-      - 5432:5432
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # "Is PostgreSQL actually ready to accept connections?"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5  
+  
+  migrate:
+    build:
+      context: .
+      dockerfile: docker/migrate.Dockerfile
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy  
 
   redis:
     image: redis
     ports:
-      - 6379:6379
+      - "6379:6379"
+
+  inkflow-app:
+    build:
+      context: .
+      dockerfile: docker/app.Dockerfile
+      secrets:
+        - DATABASE_URL
+        - NEXTAUTH_SECRET
+        - NEXTAUTH_URL
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - NEXTAUTH_URL=${NEXTAUTH_URL}
+    ports:
+      - "3000:3000"  
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started      
+      
+  
+  worker:
+    build:
+      context: .
+      dockerfile: docker/worker.Dockerfile
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+    ports:
+      - "3004:3004"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started   
+
+  websocket:
+    build:
+      context: .
+      dockerfile: docker/ws.Dockerfile
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - REDIS_URL=${REDIS_URL} 
+    ports:
+      - "8080:8080"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started   
+
+# "Create a Compose secret called DATABASE_URL using the DATABASE_URL environment variable from my machine."
+# export DATABASE_URL="postgresql://postgres:password@postgres:5432/inkflow"
+# export NEXTAUTH_SECRET="my-super-secret"
+# export NEXTAUTH_URL="http://localhost:3000"
+secrets:
+  DATABASE_URL:
+    environment: DATABASE_URL
+  
+  NEXTAUTH_SECRET:
+    environment:  NEXTAUTH_SECRET
+  
+  NEXTAUTH_URL:
+    environment: NEXTAUTH_URL
+  
+  REDIS_URL:
+    environment: REDIS_URL
+
+volumes:
+  postgres_data:
+
+
+    

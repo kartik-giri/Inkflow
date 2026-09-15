@@ -492,3 +492,26 @@ docker build \
 
 ## args → available while building the image.
 ## environment → available while running the container.
+
+## turbo prune app name --docker
+- creates the mini monorepo with all the source code and packages needed to run the certain application.
+- it spits out out/json folder in which all the package.json files are for all the apps and packages.
+- And out/full folder it contains all the source code for application and packages.
+
+## The << 'EOF' means:
+"Keep reading lines until you reach EOF."
+
+## What does docker image prune -a -f do?
+It means:
+
+docker image prune
+        ↓
+remove unused Docker images
+
+-a means:
+
+Remove all unused images, not just dangling images.
+
+-f means:
+
+Don't ask "Are you sure?"

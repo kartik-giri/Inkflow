@@ -1,0 +1,97 @@
+name: "Deploying inkflow app in production VM/EC2"
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # git vm clones the inkflow repo on its mini vm
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+        
+      # Github vm login to docker hub wiht my credenditals 
+      - name: Docker login
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      # Github vm build and push the new image.
+      - name: Build and push migration image.
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./docker/migrate.Dockerfile
+          push: true
+          tags: kartikgiri/inkflow-migration:${{ github.sha }}
+      
+      - name: Build and push inkflow next app image.
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./docker/app.Dockerfile
+          push: true
+          tags: kartikgiri/inkflow-app:${{ github.sha }}
+          secrets: |
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
+            NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
+        
+      - name: Build and push inkflow websocket image.
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./docker/ws.Dockerfile
+          push: true
+          tags: kartikgiri/inkflow-websocket:${{ github.sha }}
+      
+      - name: Build and push inkflow worker image.
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./docker/worker.Dockerfile
+          push: true
+          tags: kartikgiri/inkflow-worker:${{ github.sha }}
+         
+      - name: Copy prod compose file to EC2
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{secrets.VM_PRIVATE_KEY}}
+          port: 22
+          source: "compose.prod.yml"
+          target: "/home/ubuntu/inkflow"
+
+      - name: SSH into EC2 and deploy 
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{secrets.VM_PRIVATE_KEY}}
+          port: 22
+          script: |
+            cd /home/ubuntu/inkflow
+            
+            cat > .env << 'EOF'
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            REDIS_URL=${{ secrets.REDIS_URL }}
+            NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
+            NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
+            IMAGE_TAG=${{ github.sha }}
+            EOF
+
+            sudo docker compose -f compose.prod.yml pull
+            
+            sudo docker compose -f compose.prod.yml up -d
+
+            sudo docker compose -f compose.prod.yml ps
+
+            sudo docker image prune -a -f
+
+
+
+        
