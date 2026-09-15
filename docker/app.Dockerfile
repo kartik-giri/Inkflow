@@ -2,17 +2,6 @@ FROM oven/bun:1.4-slim AS pruner
 
 WORKDIR /app
 
-# Copying these pacjages to make prune understand the packages dependecies
-# COPY ./package.json ./package.json 
-# COPY ./bun.lock ./bun.lock
-# COPY ./turbo.json ./turbo.json
-
-# COPY ./packages/db/package.json ./packages/db/package.json
-# COPY ./packages/typescript-config/package.json ./packages/typescript-config/package.json
-# COPY ./packages/zodPackage/package.json ./packages/zodPackage/package.json
-
-# COPY ./apps/inkflowapp/package.json ./apps/inkflowapp/package.json
-
 COPY . .
 # create the mini monorepo for inkflow app with docker caching.
 # "Take my entire monorepo and create a smaller version containing everything necessary to build inkflowapp."
@@ -64,7 +53,7 @@ ENV HOSTNAME=0.0.0.0
 RUN groupadd -g 1001 nodejs && \
     useradd -u 1001 -g nodejs nextjs
 
-# Next.js standalone output
+# Next.js standalone outpu
 # --chown=nextjs:nodejs -> When copying these files, make nextjs the owner and nodejs the group.
 COPY --from=builder --chown=nextjs:nodejs \
     /app/apps/inkflowapp/.next/standalone ./
