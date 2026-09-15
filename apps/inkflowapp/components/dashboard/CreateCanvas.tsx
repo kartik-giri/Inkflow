@@ -26,7 +26,6 @@ const CreateCanvas = ({ setClose }: { setClose: (state: boolean) => void }) => {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              slug: crypto.randomUUID(),
               roomName:roomName
             })
         })

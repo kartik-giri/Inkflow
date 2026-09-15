@@ -27,7 +27,7 @@ export const POST = async (req: NextRequest) => {
           
           const room = await prisma.room.create({
                data: {
-                    slug: body.slug,
+                    slug: crypto.randomUUID(),
                     roomName: body.roomName,
                     adminId: Number(session.user.id)
                }
