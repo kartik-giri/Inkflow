@@ -515,3 +515,11 @@ Remove all unused images, not just dangling images.
 -f means:
 
 Don't ask "Are you sure?"
+
+## configure nginx on EC2
+install 
+sudo apt update
+sudo apt install nginx 
+
+configure nginx
+sudo nano /etc/nginx/sites-available/inkflow

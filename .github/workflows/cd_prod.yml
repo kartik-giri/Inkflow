@@ -81,7 +81,6 @@ jobs:
             REDIS_URL=${{ secrets.REDIS_URL }}
             NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
             NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
-            WEBSOCKET_URL="ws://ec2-100-51-65-9.compute-1.amazonaws.com:8080"
             IMAGE_TAG=${{ github.sha }}
             EOF
 
