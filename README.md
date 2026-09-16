@@ -11,7 +11,7 @@ Inkflow is your digital scratchpad for turning messy thoughts into clean, visual
 [Prisma](https://www.prisma.io/) → ORM for database management. \
 [Docker](https://www.docker.com/) → Containerized database for development. \
 [DockerHub](https://hub.docker.com/) → Images registry. \
-[GitHub Actions](https://github.com/features/actions) → CI/CD pipelines. \
+[GitHub Actions](https://github.com/features/actions) → CI/CD pipelines. 
 
 
 Run the following command:
