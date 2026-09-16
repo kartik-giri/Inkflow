@@ -3,15 +3,15 @@
 Inkflow is your digital scratchpad for turning messy thoughts into clean, visual diagrams.
 
 ## Tech stack
-[Turborepo](https://turborepo.dev/) → Monorepo management \
-[Bun](https://bun.com/) → Fast JavaScript package manager & runtime \
-[Next.js](https://nextjs.org/) → Frontend and Backend framework
-[WebSockets](https://www.npmjs.com/package/ws) → Real-time collaboration
-[PostgreSQL](https://www.postgresql.org/) → Database
-[Prisma](https://www.prisma.io/) → ORM for database management
-[Docker](https://www.docker.com/) → Containerized database for development
-[DockerHub](https://hub.docker.com/) → Images registry
-[GitHub Actions](https://github.com/features/actions) → CI/CD pipelines
+[Turborepo](https://turborepo.dev/) → Monorepo management. \
+[Bun](https://bun.com/) → Fast JavaScript package manager & runtime. \
+[Next.js](https://nextjs.org/) → Frontend and Backend framework. \
+[WebSockets](https://www.npmjs.com/package/ws) → Real-time collaboration. \
+[PostgreSQL](https://www.postgresql.org/) → Database. \
+[Prisma](https://www.prisma.io/) → ORM for database management. \
+[Docker](https://www.docker.com/) → Containerized database for development. \
+[DockerHub](https://hub.docker.com/) → Images registry. \
+[GitHub Actions](https://github.com/features/actions) → CI/CD pipelines. \
 
 
 Run the following command:
