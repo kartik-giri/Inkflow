@@ -3,6 +3,8 @@ name: "Deploying inkflow app in production VM/EC2"
 on:
   push:
     branches: [main]
+  paths-ignore:
+    - '**.md'
 
 jobs:
   deploy:
