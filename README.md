@@ -21,6 +21,8 @@ Inkflow is your digital scratchpad for turning messy thoughts into clean, visual
 https://github.com/user-attachments/assets/29d73b8d-0638-491a-ba71-3f38e6e4d63f
 
 ## Inkflow Architecture
+<img width="1470" height="831" alt="Screenshot 2026-09-17 at 5 27 04 PM" src="https://github.com/user-attachments/assets/eee4a1b4-c644-45f0-b1bc-02103debfb4e" />
+
 
 ```text
 inkflow/
