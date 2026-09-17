@@ -23,8 +23,8 @@ https://github.com/user-attachments/assets/29d73b8d-0638-491a-ba71-3f38e6e4d63f
 ## Inkflow Architecture
 
 inkflow/
-├── apps/                              # Independent applications/services
-│   ├── inkflowapp/                    # Next.js application
+├── apps/                              # Independent applications/services\
+│   ├── inkflowapp/                    # Next.js application\
 │   │   ├── app/                       # Next.js App Router
 │   │   ├── components/                # React UI components
 │   │   ├── lib/                       # Application utilities
