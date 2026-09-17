@@ -69,3 +69,82 @@ inkflow/
 │
 └── README.md                          # Project documentation
 ```
+
+## ✨ Features
+
+### 🎨 Infinite Canvas
+
+Create and organize ideas on a flexible canvas designed for visual thinking.
+
+* Rectangle and circle shapes
+* Freehand pencil drawing
+* Shape selection
+* Move, resize, and rotate shapes
+* Erase individual shapes
+* Text input on the canvas
+
+### 🤝 Real-Time Collaboration
+
+Collaborate with other users on the same canvas in real time using WebSockets.
+
+* Create and join shared rooms
+* Real-time drawing synchronization
+* Real-time shape editing
+* Real-time shape deletion
+* Multiple users working on the same canvas
+
+### 🔐 Authentication
+
+Secure user access with authentication and session-based authorization.
+
+* User sign-up and sign-in
+* Password-based authentication
+* Protected canvas access
+* WebSocket authentication using the user's session
+
+### 💾 Persistent Canvas Data
+
+Canvas elements are persisted so your diagrams can survive page reloads and reconnects.
+
+* PostgreSQL for persistent storage
+* Prisma ORM for database access
+* Background worker for processing canvas operations
+* Redis-backed job queues
+
+### 🔄 Background Processing
+
+Canvas persistence is separated from the real-time WebSocket layer.
+
+```text
+WebSocket Server
+       │
+       ▼
+   Redis Queue
+       │
+       ▼
+ Background Worker
+       │
+       ▼
+   PostgreSQL
+```
+
+### 🔍 Canvas Navigation
+
+Navigate large diagrams efficiently with canvas controls.
+
+* Pan across the canvas
+* Zoom in and out
+* Trackpad pinch-to-zoom support
+* Coordinate-based canvas transformations
+
+### 🚀 Production Deployment
+
+Inkflow is containerized and deployed as separate services.
+
+* Multi-stage Docker builds
+* Docker Compose service orchestration
+* GitHub Actions CI/CD
+* Docker Hub image registry
+* AWS EC2 deployment
+* Nginx reverse proxy
+* HTTPS and WebSocket proxying
