@@ -18,7 +18,9 @@ Inkflow is your digital scratchpad for turning messy thoughts into clean, visual
 
 ## Inkflow Demo
 
-Uploading screen-recording-2026-07-29-at-94909-pm_jclHBBFS.mp4…
+https://github.com/user-attachments/assets/29d73b8d-0638-491a-ba71-3f38e6e4d63f
+
+
 
 
 
