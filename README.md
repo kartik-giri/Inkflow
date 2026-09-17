@@ -20,6 +20,54 @@ Inkflow is your digital scratchpad for turning messy thoughts into clean, visual
 
 https://github.com/user-attachments/assets/29d73b8d-0638-491a-ba71-3f38e6e4d63f
 
+## Inkflow Architecture
+
+inkflow/
+├── apps/                              # Independent applications/services
+│   ├── inkflowapp/                    # Next.js application
+│   │   ├── app/                       # Next.js App Router
+│   │   ├── components/                # React UI components
+│   │   ├── lib/                       # Application utilities
+│   │   └── ...                         # Other Next.js application files
+│   │
+│   ├── real-time/                     # WebSocket server
+│   │   └── src/                       # Real-time collaboration logic
+│   │
+│   └── worker/                        # Background worker
+│       └── src/                       # Redis queue processing & database jobs
+│
+├── packages/                          # Shared packages used across applications
+│   ├── db/                            # Prisma ORM & PostgreSQL database setup
+│   │   └── prisma/                    # Prisma schema & migrations
+│   │
+│   ├── redis/                         # Shared Redis client/configuration
+│   │
+│   ├── zodPackage/                    # Shared Zod validation schemas
+│   │
+│   └── typescript-config/             # Shared TypeScript configurations
+│
+├── docker/                            # Dockerfiles for production services
+│   ├── app.Dockerfile                 # Next.js application image
+│   ├── ws.Dockerfile                  # WebSocket server image
+│   ├── worker.Dockerfile              # Background worker image
+│   ├── migrate.Dockerfile             # Database migration image
+│   └── ...                            # Other Docker configuration
+│
+├── .github/
+│   └── workflows/                     # GitHub Actions CI/CD workflows
+│       └── ...                         # Build, push & deployment workflows
+│
+├── compose.prod.yml                   # Production Docker Compose configuration
+├── docker-compose.yml                  # Local development Docker Compose
+│
+├── turbo.json                          # Turborepo pipeline configuration
+├── package.json                        # Root Bun/Turborepo configuration
+├── bun.lock                            # Bun dependency lockfile
+│
+├── .dockerignore                       # Files excluded from Docker build context
+├── .gitignore                           # Git ignored files
+│
+├── README.md                           # Project documentation
 
 
 
