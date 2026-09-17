@@ -52,11 +52,10 @@ inkflow/
 │   ├── ws.Dockerfile                  # WebSocket server image
 │   ├── worker.Dockerfile              # Background worker image
 │   ├── migrate.Dockerfile             # Database migration image
-│   └── ...                            # Other Docker configuration
 │
 ├── .github/
 │   └── workflows/                     # GitHub Actions CI/CD workflows
-│       └── ...                         # Build, push & deployment workflows
+│       
 │
 ├── compose.prod.yml                   # Production Docker Compose configuration
 ├── docker-compose.yml                 # Local development Docker Compose
